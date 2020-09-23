@@ -34,4 +34,3 @@ sudo apt-get install python-setuptools python-dev libindi-dev swig libz3-dev lib
 sudo apt-get install g++
 sudo apt-get install python3.6-dev
 ```
-
