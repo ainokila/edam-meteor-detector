@@ -7,21 +7,23 @@ import PyIndi
 from source.utils.image.formats import fits_to_jpg
 from datetime import datetime
 from PIL import Image
+from io import BytesIO
   
-class IndiClient(PyIndi.BaseClient):
+class CCDClient(PyIndi.BaseClient):
  
     device = None
     exposure_time = 1.0
  
-    def __init__(self):
-        super(IndiClient, self).__init__()
+    def __init__(self, device_name, exposure_time=1.0):
+        super(CCDClient, self).__init__()
         self.logger = logging.getLogger('PyQtIndi.IndiClient')
-        self.logger.info('creating an instance of PyQtIndi.IndiClient')
+        self.exposure_time = exposure_time
+        self.device_name = device_name
 
     def newDevice(self, d):
         self.logger.info("new device " + d.getDeviceName())
-        if d.getDeviceName() == "QHY CCD QHY5-M-":
-            self.logger.info("Set new device CCD Simulator!")
+        if d.getDeviceName() == self.device_name:
+            self.logger.info("Set new device %s", self.device_name)
             # save reference to the device in member variable
             self.device = d
 
@@ -41,12 +43,11 @@ class IndiClient(PyIndi.BaseClient):
         self.logger.info("remove property "+ p.getName() + " for device "+ p.getDeviceName())
 
     def newBLOB(self, bp):
-        self.logger.info("New BLOB "+ bp.name)
         # get image data
         img = bp.getblobdata()
         # write image data to BytesIO buffer
-        import io
-        blobfile = io.BytesIO(img)
+
+        blobfile = BytesIO(img)
         # open a file and save buffer to disk
 
         fitsfilename = "data/image-%s.fit" % (datetime.now().strftime("%m-%d-%Y-%H:%M:%S"))
@@ -94,8 +95,7 @@ class IndiClient(PyIndi.BaseClient):
 
         #get current exposure time
         exp = self.device.getNumber("CCD_EXPOSURE")
-        # set exposure time to 5 seconds
-
+        # set exposure time
         exp[0].value = self.exposure_time
         # send new exposure time to server/device
         self.sendNewNumber(exp)
