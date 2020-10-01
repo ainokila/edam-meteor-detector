@@ -1,0 +1,11 @@
+dist: focal #Ubuntu 20.04 (Focal Fossa) 
+language: python
+python:
+  - "3.8"
+  - "3.8-dev"
+
+install:
+  - pip install -r requirements-dev.txt
+
+script:
+  - pytest tests/
