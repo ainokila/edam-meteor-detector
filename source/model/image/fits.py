@@ -10,19 +10,18 @@ class ImageFits(ImageBase):
         ImageBase.__init__(self)
 
     def load_data_from_file(self, path_file):
-        file_data = open(path_file, 'rb')
+        file_data = self._read_file(path_file)
         self.load_data(file_data)
 
     def load_data(self, file_object):
         hdu_list = fits.open(file_object)
-        self.data = hdu_list[0].data
-        hdu_list.close()
+        self.data = hdu_list
 
-    def save_data(self, path_file):
-        pass
+    def save_image(self, path_file):
+        raise NotImplementedError
 
-    def __sub__(self, image):
-        pass
-
-    def __len__(self):
-        pass
+    def diff(self, image):
+        # a = fits.FITSDiff(self.data, image.data)
+        # a.diff_hdus[0][1].diff_data.diff_pixels
+        a = fits.ImageDataDiff(self.data[0], image.data[0])
+        return a
