@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from source.model.image.base import ImageBase
+import cv2
 from astropy.io import fits
+
+from source.model.image.base import ImageBase
+
 
 class ImageFits(ImageBase):
 
@@ -24,7 +27,10 @@ class ImageFits(ImageBase):
             file_object (FileObject): Python file object
         """
         self.data = fits.open(file_object)
-        
+
+    def load_from_array(self, array):
+        self.data = fits.HDUList()
+        self.data.append(fits.ImageHDU(data=array))
 
     def save_image(self, path_file):
         """ Save the fits in a path
@@ -35,15 +41,20 @@ class ImageFits(ImageBase):
         self.data.writeto(path_file)
 
     def diff(self, image):
-        """ Compare two fits using ImageDataDiff
+        """ Compare two fits and return a new ImageFits
 
         Args:
             image (ImageFits): Image to compare
 
         Returns:
-            ImageDataDiff: ImageDataDiff with the differences
+            ImageFits: ImageFits with the differences
         """
-        # a = fits.FITSDiff(self.data, image.data)
-        # a.diff_hdus[0][1].diff_data.diff_pixels
-        a = fits.ImageDataDiff(self.data[0].data, image.data[0].data)
-        return a
+
+        back_sub = cv2.createBackgroundSubtractorMOG2()
+        back_sub.apply(self.data[0].data)
+        diff = back_sub.apply(image.data[0].data)
+
+        diff_image = ImageFits()
+        diff_image.load_from_array(diff)
+
+        return diff_image

@@ -12,7 +12,6 @@ from astropy.io.fits.hdu.image import PrimaryHDU
 from source.model.image.fits import ImageFits
 
 
-
 class TestFitsModel:
 
     PATH_1 = './image1.fits'
@@ -50,8 +49,8 @@ class TestFitsModel:
 
     @classmethod
     def setup_class(cls):
-        cls.image1 = cls._create_fits_image(cls.PATH_1, 0)
-        cls.image2 = cls._create_fits_image(cls.PATH_2, 255)
+        cls.image1 = cls._create_fits_image(cls.PATH_1, 100)
+        cls.image2 = cls._create_fits_image(cls.PATH_2, 200)
 
     @classmethod
     def teardown_class(cls):
@@ -83,6 +82,11 @@ class TestFitsModel:
         assert type(image.data[0]) == PrimaryHDU
         assert image.data[0].data.tolist() == self.image1.tolist()
 
+    def test_load_from_array(self):
+        image = ImageFits()
+        image.load_from_array(self.image1)
+        assert image.data[0].data.tolist() == self.image1.tolist()
+
     def test_save_fits(self):
         open_file = open(self.PATH_1, 'rb')
         image = ImageFits()
@@ -97,16 +101,15 @@ class TestFitsModel:
         image2 = ImageFits()
         image2.load_data_from_file(self.PATH_2)
 
-        equal = image.diff(image2)
-        assert equal.diff_total == self.HEIGHT * self.WIDTH
-        #assert equal.diff_pixels == 1
-        #equal = image2.diff(image2)
-        #assert len(equal.diff_pixels) == 0
+        diff = image.diff(image2)
+        assert type(diff) == ImageFits
+        assert len(diff.data[0].data) == self.HEIGHT
+        for value in diff.data[0].data:
+            assert len(value) == self.WIDTH
 
     def test_diff_equal(self):
         image = ImageFits()
         image.load_data_from_file(self.PATH_1)
 
         equal = image.diff(image)
-        assert len(equal.diff_pixels) == 0
-        assert equal.diff_total == 0
+        assert type(equal) == ImageFits

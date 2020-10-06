@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 import sys
 import time
 import logging
-import random
 import PyIndi
+import cv2
 
-from PIL import Image
-from io import BytesIO
+from multiprocessing import Process, Pipe
 
-
-from datetime import datetime
-from source.utils.image.formats import fits_to_jpg
 from source.model.indiclients import CCDClient
+from source.model.image.fits import ImageFits
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
@@ -24,8 +20,10 @@ server_port = 7624
 device_name = "QHY CCD QHY5-M-"
 #device_name = "indi_simulator_ccd"
 
+consumer, producer = Pipe()
+
 # instantiate the client
-ccd_client = CCDClient(device_name=device_name, exposure_time=10, gain=15)
+ccd_client = CCDClient(device_name=device_name, exposure_time=1, gain=10, pipe=producer)
 
 # set indi server localhost and port
 ccd_client.setServer(server_host, server_port)
@@ -38,16 +36,22 @@ if (not(ccd_client.connectServer())):
     sys.exit(1)
 
 ccd_client.setBLOBMode(1, device_name, None)
-while True:
-    pass
 
-# # start endless loop, client works asynchron in background
-# time.sleep(1)
-# 
-# 
-# ccd_client.exposure_time = 15 # random.randrange(1, 5)
-# exposition_time = datetime.now() 
-# ccd_client.takeExposure()
-# fitsfilename = "data/image-%s.fit" % (exposition_time.strftime("%m-%d-%Y-%H:%M:%S"))
-# _save_blob(ccd_client.blob, fitsfilename, jpg=False)
-# ccd_client.logger.info("New image %s", fitsfilename)
+previous_image = None
+while True:
+    data = consumer.recv()
+    if not previous_image:
+        previous_image = ImageFits()
+        previous_image.load_data_from_file(data)
+    else:
+        new_image = ImageFits()
+        new_image.load_data_from_file(data)
+        diff_image = previous_image.diff(new_image).data[0].data
+        cv2.imshow('Viewer', diff_image)
+        previous_image = new_image
+
+        # print(fits.HDUList(hdus=[fits.ImageHDU(data=backSub.apply(img2))])[0].data)
+        # 
+        if cv2.waitKey(1000) & 0xFF == ord('q'):
+            exit
+        break

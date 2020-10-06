@@ -4,13 +4,9 @@
 import sys
 import time
 import logging
-from io import StringIO
 import PyIndi
-import pyfits
 
 from datetime import datetime
-from threading import Thread
-from io import BytesIO
 import threading
 
 
@@ -19,7 +15,7 @@ class CCDClient(PyIndi.BaseClient):
     device = None
     logger = logging.getLogger('PyQtIndi.IndiClient')
 
-    def __init__(self, device_name, exposure_time=1.0, gain = 15.0):
+    def __init__(self, device_name, exposure_time=1.0, gain = 15.0, pipe=None):
         super(CCDClient, self).__init__()
         self.blob_event = threading.Event()
         self.device_name = device_name
@@ -28,6 +24,7 @@ class CCDClient(PyIndi.BaseClient):
         self.gain = gain
         self.run = True
         self.roi = None
+        self.producer = pipe
 
     def newDevice(self, d):
         self.logger.debug("New device " + d.getDeviceName())
@@ -53,9 +50,8 @@ class CCDClient(PyIndi.BaseClient):
 
     def newBLOB(self, bp):
         img = bp.getblobdata()
-        ### process data in new Thread
         exposition_time = datetime.now() 
-        Thread(target=self.process_image, args=(img, exposition_time,)).start()
+        self.process_image(img, exposition_time)
         if self.run:
             self.takeExposure()
 
@@ -90,18 +86,9 @@ class CCDClient(PyIndi.BaseClient):
         self.sendNewNumber(exp)
 
     def process_image(self, blobfile, exposition_time):
-        fitsfilename = "./data/image-%s" % (exposition_time.strftime("%m-%d-%Y-%H:%M:%S"))
+        fitsfilename = "./data/image-%s.fit" % (exposition_time.strftime("%m-%d-%Y-%H:%M:%S"))
         self.logger.info("New image %s", fitsfilename)
-        with open(fitsfilename + '.fit', "wb") as f:
+        with open(fitsfilename, "wb") as f:
             f.write(blobfile)
-
-        # if True:
-        #     blobio=StringIO(blobfile)
-        #     hdulist=pyfits.open(fitsfilename)
-        #     scidata = hdulist[0].data
-        #     if self.roi is not None:
-        #         scidata = scidata[self.roi[1]:self.roi[1]+self.roi[3], self.roi[0]:self.roi[0]+self.roi[2]]
-        #     hdulist[0].data = scidata
-        #     #hdulist.writeto("%s.fit" % datetime.now())
-        #     #cv2.imwrite("%s.png" % datetime.now() , scidata)
-        #     cv2.imwrite(fitsfilename + '.jpg' , scidata)
+        if self.producer :
+            self.producer.send(fitsfilename)

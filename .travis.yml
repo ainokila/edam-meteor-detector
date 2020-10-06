@@ -9,4 +9,4 @@ install:
 
 script:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
-  - pytest tests/
+  - pytest tests/ -v
