@@ -1,33 +1,49 @@
-import sys
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import os
 import numpy as np
-import io
-try:
-    from astropy.io import fits
-except ImportError:
-    import pyfits as fits
+from PIL import Image
+from astropy.io import fits
+import math
+from astropy.utils.data import download_file
 
-def fits_to_jpg(fitsfilename, vmin=0, vmax=1.5e6):
 
-    # Try to read data from first HDU in fits file
-    data = fits.open(fitsfilename)[0].data
-    # If nothing is there try the second one
-    if data is None:
-        data = fits.open(fitsfilename)[1].data
+def _sqrt(inputArray, scale_min=None, scale_max=None):
+	imageData=np.array(inputArray, copy=True)
+	if scale_min == None:
+		scale_min = imageData.min()
+	if scale_max == None:
+		scale_max = imageData.max()
+	imageData = imageData.clip(min=scale_min, max=scale_max)
+	imageData = imageData - scale_min
+	indices = np.where(imageData < 0)
+	imageData[indices] = 0.0
+	imageData = np.sqrt(imageData)
+	imageData = imageData / math.sqrt(scale_max - scale_min)
+	return imageData
 
-    # Clip data to brightness limits
-    data[data > vmax] = vmax
-    data[data < vmin] = vmin
-    # Scale data to range [0, 1] 
-    data = (data - vmin)/(vmax - vmin)
-    # Convert to 8-bit integer  
-    data = (255*data).astype(np.uint8)
-    # Invert y axis
-    data = data[::-1, :]
 
-    return data
+def _fits_to_jpg(image_data, file_path):
+    """ Exports a image data as jpg file
 
-def image_to_byte_array(image):
-    imgByteArr = io.BytesIO()
-    image.save(imgByteArr, format=image.format)
-    imgByteArr = imgByteArr.getvalue()
-    return imgByteArr
+    Args:
+        image_data (F): [description]
+        file_path ([type]): [description]
+    """
+    # image_data = fits.getdata(image_file)
+    if len(image_data.shape) == 2:
+        sum_image = image_data
+    else:
+        sum_image = image_data[0] - image_data[0]
+        for single_image_data in image_data:
+            sum_image += single_image_data  
+
+    sum_image = sqrt(sum_image, scale_min=0, scale_max=np.amax(image_data))
+    sum_image = sum_image * 200
+    im = Image.fromarray(sum_image)
+    if im.mode != 'RGB':
+        im = im.convert('RGB')
+
+    im.save(file_path)
+    im.close()
