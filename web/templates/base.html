@@ -4,11 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Jekyll v4.1.1">
-    <title>Dashboard Template · Bootstrap</title>
-
-    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
+    <title>SKY - {% block title %}{% endblock %}</title>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
@@ -27,10 +23,12 @@
         .bd-placeholder-img-lg {
           font-size: 3.5rem;
         }
-      }
+      }     
     </style>
     <!-- Custom styles for this template -->
-    <link href="./static/dashboard.css" rel="stylesheet">
+    <!-- <link href="./static/dashboard.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="{{url_for("static", filename='css/dashboard.css')}}">
+
   </head>
   <body>
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
@@ -40,7 +38,7 @@
   </button>
   <ul class="navbar-nav px-3">
     <li class="nav-item text-nowrap">
-      <a class="nav-link" href="#">Log in</a>
+      <button type="button" class="btn btn-info" onclick="location.href='/login';" >Login</button>
     </li>
   </ul>
 </nav>
@@ -51,21 +49,23 @@
       <div class="sidebar-sticky pt-3">
         <ul class="nav flex-column">
           <li class="nav-item">
-            <a class="nav-link active" href="/validate">
-              <span data-feather="image"></span>
-              Explore Photos <span class="sr-only">(current)</span>
-            </a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" href="/explore">
               <span data-feather="file"></span>
               Latest Photo
             </a>
           </li>
           <li class="nav-item">
+            <a class="nav-link active" href="/validate">
+              <span data-feather="image"></span>
+              Explore Photos <span class="sr-only">(current)</span>
+              <span data-feather="lock"></span>
+            </a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="/settings">
               <span data-feather="settings"></span>
               Settings
+              <span data-feather="lock"></span>
             </a>
           </li>
         </ul>
@@ -74,17 +74,20 @@
 
     <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Nombre de pagina</h1>
+        <h1 class="h2">{% block page_name %}{% endblock %}</h1>
       </div>
 
-      <!-- <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas> -->
+      {% block content %}{% endblock %}
 
     </main>
   </div>
+
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js"></script>
-<script>
-  feather.replace()
-</script>
+<script src="{{url_for("static", filename='js/dashboard.js')}}"></script>
+
+
+
 </body>
 </html>
