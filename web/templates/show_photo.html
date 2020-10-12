@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Explore phothos{% endblock %}
+{% block page_name %}Explore phothos{% endblock %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <!-- Replace photo by static photo-->
+        <img id="image_view" src="https://www.ecured.cu/images/1/11/Cielo.jpeg" class="img-fluid" alt="Responsive image">
+        {% block image_options %}{% endblock %}         
+      </div>
+      <div class="col-lg-4">
+        <h3>Image details</h3>
+        <ul>
+            <li>
+                <p>File name: name.fits</p>
+            </li>
+            <li>
+                <p>Time: 2020-05-27 12:54:37</p>
+            </li>
+            <li>
+                <p>Exposition time: 4,3 s</p>
+            </li>
+            <li>
+                <p>Gain: 54</p>
+            </li>
+            <li>
+                <p>Download raw: <a href="#">RAW FILE</a></p>
+            </li>
+        </ul>
+      </div>
+
+    </div>
+</div>
+{% endblock %}

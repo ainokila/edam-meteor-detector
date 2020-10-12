@@ -6,6 +6,7 @@
 # python web/controller/main.py
 
 import os
+from flask import jsonify
 
 from flask import Flask, url_for, request, redirect, session, abort
 
@@ -13,7 +14,6 @@ from flask import Flask, url_for, request, redirect, session, abort
 from flask import render_template
 
 from source.db.userdb import UserDB
-
 from web.service.forms import ConfigCCDForm, LoginForm
 
 
@@ -61,13 +61,24 @@ def explore():
     user = None
     if is_auth():
         user = session_user()
-    return render_template('latest_photo.html', user=user)
+    return render_template('show_photo.html', user=user)
 
 @app.route('/validate')
 def validate_photos():
     if is_auth():
         user = session_user()
-        return render_template('explore_photos.html', user=user)
+        return render_template('analyze_photos.html', user=user)
+    else:
+        abort(403, description="Login required")
+
+@app.route('/result_analyze', methods=['GET', 'POST'])
+def result_analyze():
+    if is_auth():
+        result = {
+            'new_photo': 'https://s3-us-west-2.amazonaws.com/melingoimages/Images/87718.jpg',
+            'id_photo': '12345' 
+        }
+        return jsonify(result)
     else:
         abort(403, description="Login required")
 
@@ -109,7 +120,7 @@ def login():
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     session.clear()
-    return render_template('latest_photo.html', name='A')
+    return render_template('show_photo.html', name='A')
 
 
 # Error handlers
