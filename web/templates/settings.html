@@ -3,4 +3,82 @@
 {% block page_name %}Camera settings{% endblock %}
 {% block content %}
     <!-- Fill it-->
+    <div class="container">
+        <div class="row">
+          <div class="col-sm">
+            <!-- Replace photo by static photo-->
+            <img src="https://www.ecured.cu/images/1/11/Cielo.jpeg" class="img-fluid" alt="Responsive image">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm">
+                        <a href="#">Update mask</a>
+                    </div>
+                    <div class="col-sm">
+                        <a class="float-right" href="#">New photo</a>
+                    </div>
+                </div>
+            </div>
+                    
+          </div>
+          <div class="col-sm">
+            <form action="./settings" method="post" novalidate>
+                {{ form.hidden_tag() }}
+                <p>
+                    {{ form.device_name.label }}<br>
+                    {{ form.device_name() }}
+                    {% for error in form.device_name.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.exposition_time.label }}<br>
+                    {{ form.exposition_time(size=3) }}
+                    {% for error in form.exposition_time.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.gain.label }}<br>
+                    {{ form.gain(size=2) }}
+                    {% for error in form.gain.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+    
+                <p>
+                    {{ form.start_time.label }}<br>
+                    {{ form.start_time() }}
+                    {% for error in form.start_time.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+    
+                <p>
+                    {{ form.end_time.label }}<br>
+                    {{ form.end_time() }}
+                    {% for error in form.end_time.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+
+                <p>
+                    {{ form.auto_start.label }}<br>
+                    {{ form.auto_start() }}
+                    {% for error in form.auto_start.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+
+                <p>
+                    {{ form.auto_config.label }}<br>
+                    {{ form.auto_config() }}
+                    {% for error in form.auto_config.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+
+                <p>{{ form.submit() }}</p>
+          </div>
+        </div>
+      </div>
 {% endblock %}

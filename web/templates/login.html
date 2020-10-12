@@ -4,14 +4,26 @@
 {% block content %}
 
 <div class="d-flex justify-content-center">
-    <form action="/login" method="post">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" value=""><br><br>
-
-        <label for="password">Password:</label><br>
-        <input type="text" id="password" value=""><br><br>
-
-        <input type="submit" value="Login">
+    <form action="/login" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username() }}
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password() }}
+            {% for error in form.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit()}}</p>
+        {% if incorrect_login %}
+        <span style="color: red;">Incorrect username or password</span>
+        {% endif -%}
     </form> 
 </div>
   
