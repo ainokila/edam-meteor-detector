@@ -86,7 +86,8 @@ class CCDClient(PyIndi.BaseClient):
         self.sendNewNumber(exp)
 
     def process_image(self, blobfile, exposition_time):
-        fitsfilename = "./data/image-%s.fit" % (exposition_time.strftime("%m-%d-%Y-%H:%M:%S"))
+        #TODO: Replace filename dynamically
+        fitsfilename = "./web/static/data/raw/image-%s.fit" % (exposition_time.strftime("%m-%d-%Y-%H:%M:%S"))
         self.logger.info("New image %s", fitsfilename)
         with open(fitsfilename, "wb") as f:
             f.write(blobfile)
