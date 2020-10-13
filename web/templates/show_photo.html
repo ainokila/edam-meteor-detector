@@ -6,8 +6,12 @@
 <div class="container">
     <div class="row">
       <div class="col-lg-8">
+        {% if img %}
         <!-- Replace photo by static photo-->
+        <img id="image_view" src="{{img}}" class="img-fluid" alt="Responsive image">
+        {% else -%}
         <img id="image_view" src="https://www.ecured.cu/images/1/11/Cielo.jpeg" class="img-fluid" alt="Responsive image">
+        {% endif -%}
         {% block image_options %}{% endblock %}         
       </div>
       <div class="col-lg-4">
