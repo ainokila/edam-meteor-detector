@@ -1,0 +1,19 @@
+{% extends "show_photo.html" %}
+{% block title %}Analyze photos{% endblock %}
+{% block page_name %}Analyze photos{% endblock %}
+{% block image_options %}
+
+<div class="row">
+    <div class="col-sm">
+        <button class="btn btn-danger" id="1234" onclick="image_result(0);"> <span data-feather="trash-2"> </button>
+    </div>
+    <div class="col-sm">
+        <button class="float-right btn btn-success" id="1234" onclick="image_result(1);"> <span data-feather="check"> </button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block additional_js %}
+    <script src="{{url_for("static", filename='js/analyze_photos.js')}}"></script>
+{% endblock %}

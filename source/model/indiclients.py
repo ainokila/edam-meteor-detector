@@ -13,7 +13,7 @@ import threading
 class CCDClient(PyIndi.BaseClient):
 
     device = None
-    logger = logging.getLogger('PyQtIndi.IndiClient')
+    logger = logging.getLogger('IndiClient')
 
     def __init__(self, device_name, exposure_time=1.0, gain = 15.0, pipe=None):
         super(CCDClient, self).__init__()
@@ -60,7 +60,7 @@ class CCDClient(PyIndi.BaseClient):
                          " for device " + svp.device)
 
     def newNumber(self, nvp):
-        self.logger.info("new Number "+ nvp.name + " for device "+ str(nvp.device) + " value " + str(nvp.np.value))
+        # self.logger.info("new Number "+ nvp.name + " for device "+ str(nvp.device) + " value " + str(nvp.np.value))
         pass
 
     def newText(self, tvp):
@@ -86,7 +86,8 @@ class CCDClient(PyIndi.BaseClient):
         self.sendNewNumber(exp)
 
     def process_image(self, blobfile, exposition_time):
-        fitsfilename = "./data/image-%s.fit" % (exposition_time.strftime("%m-%d-%Y-%H:%M:%S"))
+        #TODO: Replace filename dynamically
+        fitsfilename = "./web/static/data/raw/image-%s.fit" % (exposition_time.strftime("%m-%d-%Y-%H:%M:%S"))
         self.logger.info("New image %s", fitsfilename)
         with open(fitsfilename, "wb") as f:
             f.write(blobfile)
