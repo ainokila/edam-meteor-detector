@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import cv2
+import sys
+import math
+import cv2 as cv
+import numpy as np
+
 from astropy.io import fits
 
 from source.model.image.base import ImageBase
@@ -50,7 +54,7 @@ class ImageFits(ImageBase):
             ImageFits: ImageFits with the differences
         """
 
-        back_sub = cv2.createBackgroundSubtractorMOG2()
+        back_sub = cv.createBackgroundSubtractorMOG2()
         back_sub.apply(self.data[0].data)
         diff = back_sub.apply(image.data[0].data)
 
@@ -58,3 +62,27 @@ class ImageFits(ImageBase):
         diff_image.load_from_array(diff)
 
         return diff_image
+
+    def detect_lines(self, min_line=50, max_line_gap=5):
+        """Apply the Hough algorithm to detect lines
+
+        Args:
+            min_line (int, optional): Line lenght. Defaults to 50.
+            max_line_gap (int, optional): Line gap. Defaults to 5.
+
+        Returns:
+            list: Number of detected lines
+        """
+        image = self.data[0].data
+
+        # Make a gray-scale copy and save the result in the variable 'gray'
+        # gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        gray = image
+
+        # Apply blur and save the result in the variable 'blur'
+        blur = cv.GaussianBlur(gray, (5,5), 0)
+
+        # Apply the Canny edge algorithm
+        canny = cv.Canny(blur, 100, 200, 3)
+
+        return cv.HoughLinesP(canny, 1, np.pi/180, 25, minLineLength=min_line, maxLineGap=max_line_gap)
