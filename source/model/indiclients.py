@@ -13,7 +13,7 @@ import threading
 class CCDClient(PyIndi.BaseClient):
 
     device = None
-    logger = logging.getLogger('PyQtIndi.IndiClient')
+    logger = logging.getLogger('IndiClient')
 
     def __init__(self, device_name, exposure_time=1.0, gain = 15.0, pipe=None):
         super(CCDClient, self).__init__()
@@ -60,7 +60,7 @@ class CCDClient(PyIndi.BaseClient):
                          " for device " + svp.device)
 
     def newNumber(self, nvp):
-        self.logger.info("new Number "+ nvp.name + " for device "+ str(nvp.device) + " value " + str(nvp.np.value))
+        # self.logger.info("new Number "+ nvp.name + " for device "+ str(nvp.device) + " value " + str(nvp.np.value))
         pass
 
     def newText(self, tvp):

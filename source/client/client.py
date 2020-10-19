@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
+import signal
 import time
 import logging
 import PyIndi
@@ -11,6 +12,7 @@ from multiprocessing import Process, Pipe
 
 from source.model.indiclients import CCDClient
 from source.model.image.fits import ImageFits
+from source.model.analyzer import ImageAnalyzer
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
@@ -26,6 +28,18 @@ args_parser.add_argument('--ccd_device_name', default='QHY CCD QHY5-M-', action=
 args_parser.add_argument('--ccd_exposition', default=1, action='store', type=int)
 args_parser.add_argument('--ccd_gain', default=50, action='store', type=int)
 
+stop = False
+analyzer = None
+
+def term_signal(signum, frame):
+    global stop
+    global analyzer
+    analyzer.stop.set()
+    stop = True
+
+# Signal handlers
+signal.signal(signal.SIGTERM, term_signal)
+signal.signal(signal.SIGINT, term_signal)
 
 args = args_parser.parse_args()
 
@@ -43,6 +57,8 @@ ccd_client = CCDClient(device_name=ccd_device_name,
                        gain=ccd_gain,
                        pipe=producer)
 
+analyzer = ImageAnalyzer(consumer_pipe=consumer)
+
 # set indi server localhost and port
 ccd_client.setServer(server_host, server_port)
 
@@ -53,21 +69,8 @@ if (not(ccd_client.connectServer())):
           ":"+str(ccd_client.getPort())+" - Try to run")
     sys.exit(1)
 
+analyzer.start()
 ccd_client.setBLOBMode(1, ccd_device_name, None)
 
-previous_image = None
-while True:
-    data = consumer.recv()
-    if not previous_image:
-        previous_image = ImageFits()
-        previous_image.load_data_from_file(data)
-    else:
-        new_image = ImageFits()
-        new_image.load_data_from_file(data)
-        diff_image = previous_image.diff(new_image).data[0].data
-        cv2.imshow('Viewer', diff_image)
-        previous_image = new_image
-        time.sleep(30)
-        if cv2.waitKey(1000) & 0xFF == ord('q'):
-            exit
-        break
+while not stop:
+    time.sleep(1)
