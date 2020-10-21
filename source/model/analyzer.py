@@ -7,6 +7,10 @@ from threading import Thread
 
 from source.model.image.fits import ImageFits
 
+from source.utils.image.formats import _fits_to_jpg
+from source.model.repository import ImageRepository
+
+
 # Check the following https://www.meteornews.net/2020/05/05/d64-nl-meteor-detecting-project/
 # https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
 
@@ -14,6 +18,7 @@ from source.model.image.fits import ImageFits
 class ImageAnalyzer(Process):
 
     logger = logging.getLogger('ImageAnalyzer')
+    image_repository = ImageRepository()
 
     def __init__(self, consumer_pipe):
         self.consumer = consumer_pipe
@@ -33,16 +38,16 @@ class ImageAnalyzer(Process):
             image.load_data_from_file(filename)
 
             result = False
-            # if self.previous_image:
             try:
                 result = self.analyze_image(filename=filename, new_image=image)
-            except Exception:
-                pass
+            except Exception as e:
+                print(e)
 
+            image_name = self.export_to_jpg(filename, image)
             if result:
-                self.manage_posible(filename=filename)
-
-            self.previous_image = image
+                self.move_images(image_name, ImageRepository.RAW, ImageRepository.POSITIVES)
+            else:
+                self.move_images(image_name, ImageRepository.RAW, ImageRepository.DISCARDED)
 
     def analyze_image(self, filename, new_image):
         """ Analyzes an image searching possible meteors
@@ -54,15 +59,38 @@ class ImageAnalyzer(Process):
             boolean: returns True, if there is a possible meteor
         """
         lines = new_image.detect_lines()
-        if lines:
-            self.logger.info("Posible positive %s lines %s", filename, lines)
+        if len(lines): # > umbral:
+            self.logger.info("Posible positive %s lines %s", filename, len(lines))
             return True
         else:
-            self.logger.info("Discarding image %s lines %s", filename, lines)
+            self.logger.info("Discarding image %s lines %s", filename, len(lines))
             return False
 
-    def manage_posible(self, filename):
-        self.logger.info("Gestionando positivo")
+    def export_to_jpg(self, filename, new_image):
+        """Save an image using jpg format
+
+        Args:
+            filename (str): File path
+            new_image (ImageFits): ImageFits 
+
+        Returns:
+            str: File name without extension
+        """
+        image_name = filename.split('/')[-1].split('.')[-2]
+        output_name_jpg = ImageRepository.RAW + image_name + '.jpg'
+        _fits_to_jpg(new_image, output_name_jpg)
+        return image_name
+
+    def move_images(self, image_name, source, destination):
+        """ Move the images from raw path to the destination
+
+        Args:
+            image_name (str): File name
+            source (str): Source path
+            destination (str): Destionation path
+        """
+        self.image_repository.move_file(image_name + '.fit', source, destination)
+        self.image_repository.move_file(image_name + '.jpg', source, destination)
 
     def stop_worker(self):
         self.stop.set()
