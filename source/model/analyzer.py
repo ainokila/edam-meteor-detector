@@ -45,7 +45,7 @@ class ImageAnalyzer(Process):
 
             image_name = self.export_to_jpg(filename, image)
             if result:
-                self.move_images(image_name, ImageRepository.RAW, ImageRepository.POSITIVES)
+                self.move_images(image_name, ImageRepository.RAW, ImageRepository.CANDIDATES)
             else:
                 self.move_images(image_name, ImageRepository.RAW, ImageRepository.DISCARDED)
 
@@ -59,6 +59,7 @@ class ImageAnalyzer(Process):
             boolean: returns True, if there is a possible meteor
         """
         lines = new_image.detect_lines()
+        # lines = [1,3,4,5,6]
         if len(lines): # > umbral:
             self.logger.info("Posible positive %s lines %s", filename, len(lines))
             return True
@@ -89,8 +90,7 @@ class ImageAnalyzer(Process):
             source (str): Source path
             destination (str): Destionation path
         """
-        self.image_repository.move_file(image_name + '.fit', source, destination)
-        self.image_repository.move_file(image_name + '.jpg', source, destination)
+        self.image_repository.move_files(image_name, source, destination)
 
     def stop_worker(self):
         self.stop.set()

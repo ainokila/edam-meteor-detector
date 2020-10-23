@@ -9,6 +9,7 @@ from flask import render_template, session, redirect, url_for, redirect, jsonify
 
 from source.db.userdb import UserDB
 from source.model.repository import ImageRepository
+from source.model.image.fits import ImageFits
 
 from web.service.forms import ConfigCCDForm, LoginForm
 
@@ -40,14 +41,32 @@ def session_user():
     return get_user(session['username'])
 
 
-def next_candidate_image():
-    images = image_repository.list_files(ImageRepository.CANDIDATES)
+def last_positive():
+    images = image_repository.list_files(ImageRepository.POSITIVES, extension='jpg')
     img = None
+    header = None
     if images:
-        img = url_for("static", filename='data/candidates/' + images[0])
-    return img
+        filename = 'data/positives/' + images[0]
+        img = url_for("static", filename=filename)
+        header = get_header(path_file=ImageRepository.POSITIVES + images[0].split('.')[-2] + '.fit')
+    return img, header
 
-class ExploreView(View):
+def next_candidate_image():
+    images = image_repository.list_files(ImageRepository.CANDIDATES, extension='jpg')
+    img = None
+    header = None
+    if images:
+        filename = 'data/candidates/' + images[0]
+        img = url_for("static", filename=filename)
+        header = get_header(path_file=ImageRepository.CANDIDATES + images[0].split('.')[-2] + '.fit')
+    return img, header
+
+def get_header(path_file):
+    fits = ImageFits()
+    fits.load_data_from_file(path_file)
+    return fits.header
+
+class LastPositiveView(View):
 
     methods = ['GET']
 
@@ -59,9 +78,12 @@ class ExploreView(View):
 
     def dispatch_request(self):
         user = None
+        img, header = last_positive()
+        name = img.split('.')[-2].split('/')[-1]
+        context = { "img": img, "name":name, "header":header}
         if is_auth():
             user = session_user()
-        context = { "user": user }
+        context.update({ "user": user })
         return self.render_template(context)
     
 
@@ -77,8 +99,9 @@ class ValidateView(View):
 
     def dispatch_request(self):
         if is_auth():
-            img = next_candidate_image()
-            context = { "user": session_user(), "img": img}
+            img, header = next_candidate_image()
+            name = img.split('.')[-2].split('/')[-1]
+            context = { "user": session_user(), "img": img, "name":name, "header":header}
             return self.render_template(context)
         else:
             abort(403, description="Login required")
@@ -153,17 +176,20 @@ class AnalyzeView(MethodView):
             # Check if it is positive or negative
             data = json.loads(request.get_data())
 
-            filename = data['photo'].split('/')[-1]
+            filename = data['photo'].split('.')[-2].split('/')[-1]
 
             if data['positive']:
                 img_destination = ImageRepository.POSITIVES
             else:
                 img_destination = ImageRepository.DISCARDED
 
-            image_repository.move_file(filename, ImageRepository.CANDIDATES, img_destination)
+            image_repository.move_files(filename, ImageRepository.CANDIDATES, img_destination)
 
+            img, header = next_candidate_image()
             result = {
-                'new_photo': next_candidate_image()
+                'new_photo': img,
+                'name': filename,
+                'header': header.to_dict() if header else {}
             }
             return jsonify(result)
         else:

@@ -38,14 +38,17 @@ class ImageRepository(object):
                     found_files.append(file)
         return found_files
 
-    def move_file(self, file_name, source, destination):
-        """[summary]
+    def move_files(self, file_name, source, destination):
+        """Move files ignoring the extension
 
         Args:
-            file_name ([type]): [description]
-            source ([type]): [description]
-            destination ([type]): [description]
+            file_name (str): Filename without extension
+            source (str): Source path
+            destination (str): Destination path
         """
-        src_path_name = source + file_name
-        dst_path_name = destination + file_name
-        os.rename(src_path_name, dst_path_name)
+        for _, _, files in os.walk(source):
+            for file in files:
+                if file.split('.')[-2] == file_name:
+                    src_path_name = source + file
+                    dst_path_name = destination + file
+                    os.rename(src_path_name, dst_path_name)

@@ -11,10 +11,30 @@ from astropy.io import fits
 from source.model.image.base import ImageBase
 
 
+class HeaderFits(object):
+
+    def __init__(self, data={}):
+        self.exposition = data.get('EXPTIME', None)
+        self.time = data.get('DATE-OBS', None)
+        self.gain = data.get('GAIN', None)
+        self.img_type = data.get('IMAGETYP', None)
+        self.comment = data.get('COMMENT', None)
+
+    def to_dict(self):
+        return {
+            'exposition': self.exposition,
+            'time': self.time,
+            'gain': self.gain,
+            'img_type': self.img_type,
+            'comment': str(self.comment)
+        }
+
+
 class ImageFits(ImageBase):
 
     def __init__(self):
         ImageBase.__init__(self)
+        self.header = HeaderFits()
 
     def load_data_from_file(self, path_file):
         """ Load a fits image from a file
@@ -31,10 +51,12 @@ class ImageFits(ImageBase):
             file_object (FileObject): Python file object
         """
         self.data = fits.open(file_object)
+        self.header = HeaderFits(self.data[0].header)
 
     def load_from_array(self, array):
         self.data = fits.HDUList()
         self.data.append(fits.ImageHDU(data=array))
+        self.header = HeaderFits(self.data[0].header)
 
     def save_image(self, path_file):
         """ Save the fits in a path
