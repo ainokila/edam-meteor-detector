@@ -8,13 +8,13 @@ from flask import render_template, session, redirect, url_for, redirect, jsonify
 
 
 from source.db.userdb import UserDB
+from source.model.repository import ImageRepository
+from source.model.image.fits import ImageFits
+
 from web.service.forms import ConfigCCDForm, LoginForm
 
-# TODO: Move to a config file or something similar
-STATIC_PATH = os.environ['PYTHONPATH'] + '/web/static'
-RAW_PATH = STATIC_PATH + '/data/raw/'
-CANDIDATES_PATH = STATIC_PATH + '/data/candidates/'
-POSITIVES_PATH = STATIC_PATH + '/data/positives/'
+
+image_repository = ImageRepository()
 
 
 def get_user(username):
@@ -41,20 +41,32 @@ def session_user():
     return get_user(session['username'])
 
 
-def _get_image_name(path):
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            if file.endswith(".jpg"):
-                return file
-    return None
+def last_positive():
+    images = image_repository.list_files(ImageRepository.POSITIVES, extension='jpg')
+    img = None
+    header = None
+    if images:
+        filename = 'data/positives/' + images[0]
+        img = url_for("static", filename=filename)
+        header = get_header(path_file=ImageRepository.POSITIVES + images[0].split('.')[-2] + '.fit')
+    return img, header
 
-def _move_image(src_path_name, dst_path_name):
-    os.rename(src_path_name, dst_path_name)
+def next_candidate_image():
+    images = image_repository.list_files(ImageRepository.CANDIDATES, extension='jpg')
+    img = None
+    header = None
+    if images:
+        filename = 'data/candidates/' + images[0]
+        img = url_for("static", filename=filename)
+        header = get_header(path_file=ImageRepository.CANDIDATES + images[0].split('.')[-2] + '.fit')
+    return img, header
 
-def _delete_image(src_path_name):
-    os.remove(src_path_name)
+def get_header(path_file):
+    fits = ImageFits()
+    fits.load_data_from_file(path_file)
+    return fits.header
 
-class ExploreView(View):
+class LastPositiveView(View):
 
     methods = ['GET']
 
@@ -66,9 +78,12 @@ class ExploreView(View):
 
     def dispatch_request(self):
         user = None
+        img, header = last_positive()
+        name = img.split('.')[-2].split('/')[-1]
+        context = { "img": img, "name":name, "header":header}
         if is_auth():
             user = session_user()
-        context = { "user": user }
+        context.update({ "user": user })
         return self.render_template(context)
     
 
@@ -77,17 +92,16 @@ class ValidateView(View):
     methods = ['GET']
 
     def get_template_name(self):
-        return 'analyze_photos.html'
+        return 'validate_photos.html'
 
     def render_template(self, context):
         return render_template(self.get_template_name(), **context)
 
     def dispatch_request(self):
         if is_auth():
-            img = _get_image_name(CANDIDATES_PATH)
-            if img:
-                img = url_for("static", filename='data/candidates/' + img)
-            context = { "user": session_user(), "img": img}
+            img, header = next_candidate_image()
+            name = img.split('.')[-2].split('/')[-1]
+            context = { "user": session_user(), "img": img, "name":name, "header":header}
             return self.render_template(context)
         else:
             abort(403, description="Login required")
@@ -162,20 +176,20 @@ class AnalyzeView(MethodView):
             # Check if it is positive or negative
             data = json.loads(request.get_data())
 
-            filename = data['photo'].split('/')[-1]
-            path_name = CANDIDATES_PATH + filename
+            filename = data['photo'].split('.')[-2].split('/')[-1]
 
             if data['positive']:
-                _move_image(path_name, POSITIVES_PATH + filename)
-                print("Moving photo")
+                img_destination = ImageRepository.POSITIVES
             else:
-                print("Removing photo")
-                _delete_image(path_name)
+                img_destination = ImageRepository.DISCARDED
 
-            img = _get_image_name(CANDIDATES_PATH)
+            image_repository.move_files(filename, ImageRepository.CANDIDATES, img_destination)
+
+            img, header = next_candidate_image()
             result = {
-                'new_photo': url_for("static", filename='data/candidates/' + img),
-                'id_photo': '12345' 
+                'new_photo': img,
+                'name': filename,
+                'header': header.to_dict() if header else {}
             }
             return jsonify(result)
         else:

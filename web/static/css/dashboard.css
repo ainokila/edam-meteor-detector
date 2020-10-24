@@ -101,3 +101,25 @@ body {
   border-color: transparent;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
+
+/*
+ * Custom
+ */
+
+ .details > li {
+  padding: 0.35rem;
+ }
+
+ .img-fluid {
+  height: 80%;
+  width: 100%;
+ }
+
+
+footer {
+  background-color: #007bff;
+}
+
+#btn-load-images{
+  padding: 0.85rem;
+}

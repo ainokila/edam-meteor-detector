@@ -1,40 +1,107 @@
 {% extends "base.html" %}
-{% block title %}Explore phothos{% endblock %}
-{% block page_name %}Explore phothos{% endblock %}
+{% block title %}Last positive{% endblock %}
+{% block page_name %}Last positive{% endblock %}
 {% block content %}
 
 <div class="container">
     <div class="row">
+
       <div class="col-lg-8">
         {% if img %}
         <!-- Replace photo by static photo-->
-        <img id="image_view" src="{{img}}" class="img-fluid" alt="Responsive image">
+        <img id="image_view" src="{{img}}" class="img-fluid img-thumbnail" alt="Responsive image">
         {% else -%}
         <img id="image_view" src="https://www.ecured.cu/images/1/11/Cielo.jpeg" class="img-fluid" alt="Responsive image">
         {% endif -%}
         {% block image_options %}{% endblock %}         
       </div>
+
       <div class="col-lg-4">
         <h3>Image details</h3>
-        <ul>
-            <li>
-                <p>File name: name.fits</p>
-            </li>
-            <li>
-                <p>Time: 2020-05-27 12:54:37</p>
-            </li>
-            <li>
-                <p>Exposition time: 4,3 s</p>
-            </li>
-            <li>
-                <p>Gain: 54</p>
-            </li>
-            <li>
-                <p>Download raw: <a href="#">RAW FILE</a></p>
-            </li>
-        </ul>
+        
+            {% if header %}
+            <ul class="details">
+                <li>
+                    <span>File name: </span>
+                    <span id="name">{{name}}</span>
+                </li>
+                <li>
+                    <span>Time: </span>
+                    <span id="header-time">{{header.time}}</span>
+                </li>
+                <li>
+                    <span>Exposition time: </span>
+                    <span id="header-exposition"> {{header.exposition}} </span> s
+                </li>
+                <li>
+                    <span>Gain: </span>
+                    <span id="header-gain">{{header.gain}}</span>
+                </li>
+                <li>
+                    <span>Image type: </span>
+                    <span id="header-img_type">{{header.img_type}}</span>
+                </li>
+                <li>
+                    <span>Comment: </span>
+                    <span id="header-comment">{{header.comment}}</span>
+                </li>
+                <li>
+                    Download raw: <a id="download-raw" href="#">RAW FILE</a>
+                </li>
+            </ul>
+            {% else -%}
+            <h5>Header not found</h5>
+            {% endif -%}
       </div>
 
     </div>
 </div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row text-center text-lg-left justify-content-around scrollmenu">
+            <div class="col-lg-4 col-md-4 col-6">
+                <a href="#" class="d-block mb-4 h-100">
+                    <img class="img-fluid img-thumbnail" src="{{img}}" alt="">
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-6">
+                <a href="#" class="d-block mb-4 h-100">
+                    <img class="img-fluid img-thumbnail" src="{{img}}" alt="">
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-6">
+                <a href="#" class="d-block mb-4 h-100">
+                    <img class="img-fluid img-thumbnail" src="{{img}}" alt="">
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-6">
+                <a href="#" class="d-block mb-4 h-100">
+                    <img class="img-fluid img-thumbnail" src="{{img}}" alt="">
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-6">
+                <a href="#" class="d-block mb-4 h-100">
+                    <img class="img-fluid img-thumbnail" src="{{img}}" alt="">
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-6">
+                <a href="#" class="d-block mb-4 h-100">
+                    <img class="img-fluid img-thumbnail" src="{{img}}" alt="">
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center mb-5">
+
+    <button class="btn btn-outline-secondary mb-6" id="btn-load-images">Load more images</button>
+
+</div>
+
+{% endblock %}
+
+{% block additional_js %}
+    <script src="{{url_for("static", filename='js/show_photo.js')}}"></script>
 {% endblock %}
