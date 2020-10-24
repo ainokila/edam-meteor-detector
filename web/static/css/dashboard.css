@@ -109,3 +109,17 @@ body {
  .details > li {
   padding: 0.35rem;
  }
+
+ .img-fluid {
+  height: 80%;
+  width: 100%;
+ }
+
+
+footer {
+  background-color: #007bff;
+}
+
+#btn-load-images{
+  padding: 0.85rem;
+}

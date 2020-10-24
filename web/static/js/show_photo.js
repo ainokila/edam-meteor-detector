@@ -12,7 +12,7 @@ function image_result(status){
         success: function(response){
             console.log(response);
             document.getElementById("image_view").src = response['new_photo'];
-            // ACTUALIZAR LA INFORMACION DE LA IMAGEN
+
             document.getElementById("name").innerHTML = response['name'];
             document.getElementById("header-time").innerHTML = response['header']['time'];
             document.getElementById("header-exposition").innerHTML = response['header']['exposition'];
@@ -29,7 +29,6 @@ function image_result(status){
 
 
 function create_url_for_download(){
-    console.debug("Computando url para descarga");
 
     let image = document.getElementById("image_view").src;
     let raw_url = image.replace('jpg', 'fit');
@@ -37,10 +36,17 @@ function create_url_for_download(){
 
 }
 
-
-
-
 window.onload = function() {
     create_url_for_download();
 
 };
+
+
+$("#btn-load-images").click(function() {
+    if (window.location.href.includes("explore")){
+        console.log("Obtener nuevas explore imagenes");
+    }else{
+        console.log("Obtener nuevas validate imagenes");
+    }
+    
+});
