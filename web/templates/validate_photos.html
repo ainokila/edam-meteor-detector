@@ -3,12 +3,12 @@
 {% block page_name %}Validate photos{% endblock %}
 {% block image_options %}
 
-<div class="row">
+<div class="row row pt-2">
     <div class="col-sm">
-        <button class="btn btn-danger" id="1234" onclick="image_result(0);"> <span data-feather="trash-2"> </button>
+        <button title="Mark the image as negative" class="btn btn-danger" onclick="imageResult(0);"> <span data-feather="trash-2"> </button>
     </div>
     <div class="col-sm">
-        <button class="float-right btn btn-success" id="1234" onclick="image_result(1);"> <span data-feather="check"> </button>
+        <button title="Mark the image as positive" class="float-right btn btn-success" onclick="imageResult(1);"> <span data-feather="check"> </button>
     </div>
 </div>
 
