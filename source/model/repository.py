@@ -38,6 +38,25 @@ class ImageRepository(object):
                     found_files.append(file)
         return found_files
 
+
+    def find_file(self, directory, name, extension=''):
+        """Find the the file name in a directory
+
+        Args:
+            directory (str): Directory name
+            name (str): Filename
+            extension (str, optional): Extension filter. Defaults to ''.
+
+        Returns:
+            list: List with the file names
+        """
+        for _, _, files in os.walk(directory):
+            for file in files:
+                file_name = file.split('.')[-2]
+                if file.endswith(extension) and name == file_name:
+                    return file
+        return None
+
     def move_files(self, file_name, source, destination):
         """Move files ignoring the extension
 

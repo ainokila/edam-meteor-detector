@@ -41,6 +41,41 @@ def session_user():
     return get_user(session['username'])
 
 
+def get_images(img_type, offset, size):
+
+    if img_type == ImageRepository.POSITIVES:
+        img_path = 'data/positives/'
+    elif img_type == ImageRepository.CANDIDATES:
+        img_path = 'data/candidates/'
+    else:
+        raise Exception('Incorrect img_type')
+
+    images = image_repository.list_files(img_type, extension='jpg')
+    images_with_header = []
+    if images:
+        for image in images:
+            filename = img_path + image
+            img = url_for("static", filename=filename)
+            header = get_header(path_file=img_type + image.split('.')[-2] + '.fit')
+            images_with_header.append({'img': img, 'header': header})
+
+    return images_with_header[offset:offset+size]
+
+
+def get_image(img_type, img_name):
+    if img_type == ImageRepository.POSITIVES:
+        img_path = 'data/positives/'
+    elif img_type == ImageRepository.CANDIDATES:
+        img_path = 'data/candidates/'
+    else:
+        raise Exception('Incorrect img_type')
+
+    image = image_repository.find_file(img_type, img_name, extension='jpg')
+    filename = img_path + image
+    img = url_for("static", filename=filename)
+    header = get_header(path_file=img_type + image.split('.')[-2] + '.fit')
+    return {'img': img, 'header': header}
+
 def last_positive():
     images = image_repository.list_files(ImageRepository.POSITIVES, extension='jpg')
     img = None
@@ -154,7 +189,7 @@ class LoginView(View):
             if user and user.password == password:
                 session['username'] = username
                 session['password'] = password
-                return redirect(url_for('explore_view'))
+                return redirect(url_for('positives_view'))
             else:
                 context = {'form': form, 'incorrect_login': True}
                 return self.render_template(context)
@@ -166,7 +201,7 @@ class LogOutView(MethodView):
 
     def get(self):
         session.clear()
-        return redirect(url_for('explore_root_view'))
+        return redirect(url_for('positives_root_view'))
 
 
 class AnalyzeView(MethodView):
@@ -187,10 +222,65 @@ class AnalyzeView(MethodView):
 
             img, header = next_candidate_image()
             result = {
-                'new_photo': img,
+                'photo': img,
                 'name': filename,
                 'header': header.to_dict() if header else {}
             }
             return jsonify(result)
         else:
             abort(403, description="Login required")
+
+
+#TODO: Improve this
+type_mapping = {
+    'candidates': ImageRepository.CANDIDATES,
+    'positives': ImageRepository.POSITIVES,
+}
+
+type_auth = {
+    'candidates': False,
+    'positives': True,
+}
+
+
+class RepositoryView(MethodView):
+
+    def post(self, img_type):
+        if img_type in type_mapping:
+            if not type_auth[img_type] or is_auth():
+
+                data = json.loads(request.get_data())
+                offset = data.get('offset', 0)
+                size = data.get('size', 0)
+
+                result = {'data': [] }
+                for img_result in get_images(type_mapping[img_type], offset, size):
+                    result['data'].append(
+                        {
+                            'photo': img_result['img'],
+                            'header': img_result['header'].to_dict() if img_result['header'] else {}
+                        }
+                    )
+
+                return jsonify(result)
+            else:
+                abort(403, description="Login required")
+        else:
+            abort(404, description="Path not found")
+
+class RepositoryIndividualView(MethodView):
+
+    def get(self, img_type, img_name):
+        if img_type in type_mapping:
+            if not type_auth[img_type] or is_auth():
+                image = get_image(type_mapping[img_type], img_name)                
+                result = {
+                    'photo': image['img'],
+                    'name': img_name,
+                    'header': image['header'].to_dict() if image['header'] else {}
+                }
+                return jsonify(result)
+            else:
+                abort(403, description="Login required")
+        else:
+            abort(404, description="Path not found")

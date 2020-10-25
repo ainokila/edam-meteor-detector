@@ -4,7 +4,7 @@
 {% block content %}
 
 <div class="d-flex justify-content-center">
-    <form action="/login" method="post" novalidate>
+    <form action="/login" method="post" nocandidates>
         {{ form.hidden_tag() }}
         <p>
             {{ form.username.label }}<br>
