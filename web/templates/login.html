@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "form_helper.html" import render_field %}
 {% block title %}Login{% endblock %}
 {% block page_name %}Login{% endblock %}
 {% block content %}
@@ -6,21 +7,16 @@
 <div class="d-flex justify-content-center">
     <form action="/login" method="post" nocandidates>
         {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username() }}
-            {% for error in form.username.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
+        <p>                
+            {{ render_field(form.username, class='form-control input-medium', placeholder='Username') }}
         </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password() }}
-            {% for error in form.password.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
+
+        <p>                
+            {{ render_field(form.password, class='form-control input-medium', placeholder='Password') }}
         </p>
-        <p>{{ form.submit()}}</p>
+
+        <!--<p>{{ form.submit()}}</p> -->
+        <button type="submit" class="btn btn-primary mb-2 float-right">Login</button>
         {% if incorrect_login %}
         <span style="color: red;">Incorrect username or password</span>
         {% endif -%}
