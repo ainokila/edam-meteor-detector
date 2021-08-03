@@ -3,6 +3,7 @@
 import os
 import json
 
+from werkzeug.datastructures import MultiDict
 from flask.views import View, MethodView
 from flask import render_template, session, redirect, url_for, redirect, jsonify, abort, request
 
@@ -10,6 +11,9 @@ from flask import render_template, session, redirect, url_for, redirect, jsonify
 from source.db.userdb import UserDB
 from source.model.repository import ImageRepository
 from source.model.image.fits import ImageFits
+from source.utils.variables import CLIENT_CONFIG_PATH, ANALYZER_CONFIG_PATH
+from source.model.ccdconfig import CCDConfig
+
 
 from web.service.forms import ConfigCCDForm, LoginForm
 
@@ -142,31 +146,68 @@ class ValidateView(View):
             abort(403, description="Login required")
 
 
-class SettingsView(View):
+class CCDSettingsView(View):
 
     methods = ['GET', 'POST']
 
     def get_template_name(self):
-        return 'settings.html'
+        return 'settings_ccd.html'
 
     def render_template(self, context):
         return render_template(self.get_template_name(), **context)
 
     def dispatch_request(self):
         if is_auth():
+
             user = session_user()
             form = ConfigCCDForm()
-            context = { 'user': user, 'form': form}
-            if form.validate_on_submit():
-                print("Bieeen")
+
+            if request.method == 'POST':
+                context = { 'user': user, 'form': form}
+
+                if form.validate_on_submit():
+                    CCDConfig(form._to_dict()).export_to_file(CLIENT_CONFIG_PATH)
+                
                 return self.render_template(context)
+
             else:
-                print("mal")
+                ccd_conf = CCDConfig.create_from_file(CLIENT_CONFIG_PATH)
+                form = ConfigCCDForm(formdata=MultiDict(ccd_conf.to_dict()))
+                context = { 'user': user, 'form': form}
                 return self.render_template(context)
-            
+
         else:
             abort(403, description="Login required")
 
+class AnalyzerSettingsView(View):
+
+    methods = ['GET', 'POST']
+
+    def get_template_name(self):
+        return 'settings_analyzer.html'
+
+    def render_template(self, context):
+        return render_template(self.get_template_name(), **context)
+
+    def dispatch_request(self):
+        if is_auth():
+
+            user = session_user()
+            form = ConfigCCDForm()
+
+            if form.validate_on_submit():
+                context = { 'user': user, 'form': form}
+                CCDConfig(form._to_dict()).export_to_file(CLIENT_CONFIG_PATH)
+                return self.render_template(context)
+
+            else:
+                ccd_conf = CCDConfig.create_from_file(CLIENT_CONFIG_PATH)
+                form = ConfigCCDForm(formdata=MultiDict(ccd_conf.to_dict()))
+                context = { 'user': user, 'form': form}
+                return self.render_template(context)
+
+        else:
+            abort(403, description="Login required")
 
 class LoginView(View):
 

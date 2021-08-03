@@ -79,9 +79,15 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/settings">
+              <a class="nav-link" href="/ccd/settings">
                 <span data-feather="settings"></span>
-                Settings
+                CCD Client
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/analyzer/settings">
+                <span data-feather="settings"></span>
+                Analyzer
               </a>
             </li>
             {% else -%}
@@ -99,9 +105,16 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link disabled" href="/settings">
+              <a class="nav-link disabled" href="/ccd/settings">
                 <span data-feather="settings"></span>
-                Settings
+                CCD Client
+                <span data-feather="lock"></span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" href="/analyzer/settings">
+                <span data-feather="settings"></span>
+                Analyzer
                 <span data-feather="lock"></span>
               </a>
             </li>
@@ -122,11 +135,12 @@
       </main>
     </div>
   </div>
- 
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js"></script>
   <script src="{{url_for("static", filename='js/dashboard.js')}}"></script>
   {% block additional_js %}{% endblock %}
 
 
 </body>
+
 </html>

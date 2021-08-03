@@ -58,6 +58,8 @@ class ImageAnalyzer(Process):
         Returns:
             boolean: returns True, if there is a possible meteor
         """
+        return False
+
         lines = new_image.detect_lines()
         # lines = [1,3,4,5,6]
         if len(lines): # > umbral:

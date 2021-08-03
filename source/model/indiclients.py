@@ -80,7 +80,7 @@ class CCDClient(PyIndi.BaseClient):
                          ","+str(self.getHost())+":"+str(self.getPort())+")")
 
     def takeExposure(self):
-        self.logger.info("<<<<<<<< Exposure >>>>>>>>>")
+        self.logger.debug("<<<<<<<< Exposure >>>>>>>>>")
         exp = self.device.getNumber("CCD_EXPOSURE")
         exp[0].value = self.exposure_time
         self.sendNewNumber(exp)
@@ -93,3 +93,17 @@ class CCDClient(PyIndi.BaseClient):
             f.write(blobfile)
         if self.producer :
             self.producer.send(fitsfilename)
+
+    def update_gain(self, gain):
+        self.logger.info('Updated ccd gain value to %s', gain)
+        self.gain = gain
+        gain = self.device.getNumber("CCD_GAIN")
+        gain[0].value = self.gain
+        self.sendNewNumber(gain)
+
+    def update_exposure_time(self, exposure_time):
+        self.logger.info('Updated ccd exposition value to %s', exposure_time)
+        self.exposure_time = exposure_time
+        exp = self.device.getNumber("CCD_EXPOSURE")
+        exp[0].value = self.exposure_time
+        self.sendNewNumber(exp)

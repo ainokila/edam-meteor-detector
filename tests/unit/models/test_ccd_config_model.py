@@ -13,30 +13,35 @@ class TestCCDConfigModel:
         assert config.device_name == None
         assert config.exposure_time == None
         assert config.gain == None
-
-        config_dict = config.to_dict()
-
-        assert config.device_name == config_dict['device_name']
-        assert config.exposure_time == config_dict['exposure_time']
-        assert config.gain == config_dict['gain']
+        assert config.start_time == ''
+        assert config.end_time == ''
+        assert config.auto_start == False
+        assert config.auto_config == False
 
     def test_create_ccdconfig(self):
         device_name = "device_name"
         exposure_time = 60
         gain = 60
+        start_time = '20:00'
+        end_time = '08:00'
         config_info = {
-            "device_name": device_name,
-            "exposure_time": exposure_time,
-            "gain": gain,
+            'device_name': device_name,
+            'exposition_time': exposure_time,
+            'gain': gain,
+            'start_time': start_time,
+            'end_time': end_time,
+            'auto_start': True,
+            'auto_config': True,
         }
         config = CCDConfig(data=config_info)
 
         assert config.device_name == device_name
         assert config.exposure_time == exposure_time
         assert config.gain == gain
+        assert config.start_time == start_time
+        assert config.end_time == end_time
+        assert config.auto_start == True
+        assert config.auto_config == True
 
-        config_dict = config.to_dict()
-
-        assert config.device_name == config_dict['device_name']
-        assert config.exposure_time == config_dict['exposure_time']
-        assert config.gain == config_dict['gain']
+    def test_ccdconfig_to_dict(self):
+        pass

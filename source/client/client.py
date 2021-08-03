@@ -7,14 +7,19 @@ import logging
 import PyIndi
 import cv2
 import argparse
+import os
+import json
 
 from multiprocessing import Process, Pipe
 
 from source.model.indiclients import CCDClient
 from source.model.image.fits import ImageFits
 from source.model.analyzer import ImageAnalyzer
+from source.model.ccdconfig import CCDConfig
+from source.utils.variables import CLIENT_CONFIG_PATH, ANALYZER_CONFIG_PATH
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+logger = logging.getLogger('Client')
 
 # Create the parser
 args_parser = argparse.ArgumentParser(
@@ -24,9 +29,6 @@ args_parser = argparse.ArgumentParser(
 # Arguments
 args_parser.add_argument('--host', default='localhost', action='store', type=str)
 args_parser.add_argument('--port', default=7624, action='store', type=int)
-args_parser.add_argument('--ccd_device_name', default='QHY CCD QHY5-M-', action='store', type=str)
-args_parser.add_argument('--ccd_exposition', default=1, action='store', type=int)
-args_parser.add_argument('--ccd_gain', default=50, action='store', type=int)
 
 stop = False
 analyzer = None
@@ -41,21 +43,21 @@ def term_signal(signum, frame):
 signal.signal(signal.SIGTERM, term_signal)
 signal.signal(signal.SIGINT, term_signal)
 
+ccd_config = CCDConfig.create_from_file(CLIENT_CONFIG_PATH)
+
 args = args_parser.parse_args()
 
 server_host = args.host
 server_port = args.port
-ccd_device_name = args.ccd_device_name
-ccd_exposition = args.ccd_exposition
-ccd_gain = args.ccd_gain
-
 consumer, producer = Pipe()
 
 # instantiate the client
-ccd_client = CCDClient(device_name=ccd_device_name,
-                       exposure_time=ccd_exposition,
-                       gain=ccd_gain,
+ccd_client = CCDClient(device_name=ccd_config.device_name,
+                       exposure_time=ccd_config.exposure_time,
+                       gain=ccd_config.gain,
                        pipe=producer)
+logger.info("Created client with the following properties:\n\t %s", ccd_config)
+
 
 analyzer = ImageAnalyzer(consumer_pipe=consumer)
 
@@ -63,14 +65,22 @@ analyzer = ImageAnalyzer(consumer_pipe=consumer)
 ccd_client.setServer(server_host, server_port)
 
 # connect to indi server
-print("Connecting to indiserver")
+logger.info("Connecting to indiserver host %s port %s", ccd_client.getHost(), ccd_client.getPort())
 if (not(ccd_client.connectServer())):
-    print("No indiserver running on "+ccd_client.getHost() +
-          ":"+str(ccd_client.getPort())+" - Try to run")
-    sys.exit(1)
+    logger.error("No connection to server - Aborted.")
+    sys.exit(-1)
 
 analyzer.start()
-ccd_client.setBLOBMode(1, ccd_device_name, None)
+ccd_client.setBLOBMode(1, ccd_config.device_name, None)
 
 while not stop:
+
     time.sleep(1)
+    ccd_config_new = CCDConfig.create_from_file(CLIENT_CONFIG_PATH)
+
+    if hash(ccd_config_new) != hash(ccd_config):
+        logger.info("Detected a change in the configuration for ccd client")
+        ccd_config = ccd_config_new
+
+        ccd_client.update_exposure_time(ccd_config.exposure_time)
+        ccd_client.update_gain(ccd_config.gain)
