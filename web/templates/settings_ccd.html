@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "form_helper.html" import render_field %}
+{% block title %}CCD settings{% endblock %}
+{% block page_name %}CCD settings{% endblock %}
+{% block content %}
+    <!-- Fill it-->
+    <div class="container">
+        <div class="row">
+          <div class="col-sm">
+            <div class="d-flex justify-content-center">
+                <form action="./settings" method="post" nocandidates>
+                    {{ form.hidden_tag() }}
+
+                        <p>      
+                            {{ render_field(form.device_name, class='form-control input-sm', placeholder='Device Name') }}
+                        </p>         
+
+                        <p>                
+                            {{ render_field(form.exposition_time, class='form-control', placeholder='CCD Exposition Time') }}
+                        </p>
+
+                        <p>                
+                            {{ render_field(form.gain, class='form-control', placeholder='CCD Gain') }}
+                        </p>
+                        <p>                
+                            {{ render_field(form.start_time, class='form-control', placeholder='Start hour HH:SS') }}
+                        </p>
+
+                        <p>                
+                            {{ render_field(form.end_time, class='form-control', placeholder='End hour HH:SS') }}
+                        </p>
+
+                        <p>                
+                            {{ render_field(form.auto_start, class='form-control') }}
+                        </p>
+
+                        <p>                
+                            {{ render_field(form.auto_config, class='form-control') }}
+                        </p>
+                        <button type="submit" class="btn btn-primary mb-2 float-right">Update Configuration</button>
+
+
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

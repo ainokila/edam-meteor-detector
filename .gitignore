@@ -10,7 +10,7 @@ __pycache__/
 *.so
 
 # Project data
-data/*
+web/static/data/*
 
 # Distribution / packaging
 .Python
