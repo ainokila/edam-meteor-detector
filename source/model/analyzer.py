@@ -58,6 +58,7 @@ class ImageAnalyzer(Process):
         Returns:
             boolean: returns True, if there is a possible meteor
         """
+        self.logger.info("Analyzer skipped")
         return False
 
         lines = new_image.detect_lines()
