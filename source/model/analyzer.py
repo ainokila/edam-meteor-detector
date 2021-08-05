@@ -41,13 +41,24 @@ class ImageAnalyzer(Process):
             try:
                 result = self.analyze_image(filename=filename, new_image=image)
             except Exception as e:
-                print(e)
+                self.logger.critical("Exception during analyze image", exc_info=True)
 
             image_name = self.export_to_jpg(filename, image)
             if result:
+                self.generate_gif(image_name)
                 self.move_images(image_name, ImageRepository.RAW, ImageRepository.CANDIDATES)
             else:
                 self.move_images(image_name, ImageRepository.RAW, ImageRepository.DISCARDED)
+
+    def generate_gif(self, image_name, number_images):
+        """ Generates a GIF using the previos N images.
+
+        Args:
+            image_name (str): Image idenfifier
+            number_images (int): Number of images to include in the gif
+        """
+        self.logger.info("Generating gif for %s", image_name)
+        pass
 
     def analyze_image(self, filename, new_image):
         """ Analyzes an image searching possible meteors

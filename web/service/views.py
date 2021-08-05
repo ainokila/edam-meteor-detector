@@ -3,6 +3,8 @@
 import os
 import json
 
+from functools import wraps
+
 from werkzeug.datastructures import MultiDict
 from flask.views import View, MethodView
 from flask import render_template, session, redirect, url_for, redirect, jsonify, abort, request
@@ -13,9 +15,10 @@ from source.model.repository import ImageRepository
 from source.model.image.fits import ImageFits
 from source.utils.variables import CLIENT_CONFIG_PATH, ANALYZER_CONFIG_PATH
 from source.model.ccdconfig import CCDConfig
+from source.model.analyzerconfig import AnalyzerConfig
 
 
-from web.service.forms import ConfigCCDForm, LoginForm
+from web.service.forms import ConfigCCDForm, ConfigAnalyzerForm, LoginForm
 
 
 image_repository = ImageRepository()
@@ -40,6 +43,14 @@ def is_auth():
     user = get_user(username)
 
     return user and user.password == password
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not is_auth():
+            abort(403, description="Login required")
+        return f(*args, **kwargs)
+    return decorated_function
 
 def session_user():
     return get_user(session['username'])
@@ -136,14 +147,12 @@ class ValidateView(View):
     def render_template(self, context):
         return render_template(self.get_template_name(), **context)
 
+    @login_required
     def dispatch_request(self):
-        if is_auth():
-            img, header = next_candidate_image()
-            name = img.split('.')[-2].split('/')[-1]
-            context = { "user": session_user(), "img": img, "name":name, "header":header}
-            return self.render_template(context)
-        else:
-            abort(403, description="Login required")
+        img, header = next_candidate_image()
+        name = img.split('.')[-2].split('/')[-1]
+        context = { "user": session_user(), "img": img, "name":name, "header":header}
+        return self.render_template(context)
 
 
 class CCDSettingsView(View):
@@ -156,28 +165,26 @@ class CCDSettingsView(View):
     def render_template(self, context):
         return render_template(self.get_template_name(), **context)
 
+    @login_required
     def dispatch_request(self):
-        if is_auth():
 
-            user = session_user()
-            form = ConfigCCDForm()
+        user = session_user()
+        form = ConfigCCDForm()
 
-            if request.method == 'POST':
-                context = { 'user': user, 'form': form}
+        if request.method == 'POST':
+            context = { 'user': user, 'form': form}
 
-                if form.validate_on_submit():
-                    CCDConfig(form._to_dict()).export_to_file(CLIENT_CONFIG_PATH)
+            if form.validate_on_submit():
+                CCDConfig(form._to_dict()).export_to_file(CLIENT_CONFIG_PATH)
                 
-                return self.render_template(context)
-
-            else:
-                ccd_conf = CCDConfig.create_from_file(CLIENT_CONFIG_PATH)
-                form = ConfigCCDForm(formdata=MultiDict(ccd_conf.to_dict()))
-                context = { 'user': user, 'form': form}
-                return self.render_template(context)
+            return self.render_template(context)
 
         else:
-            abort(403, description="Login required")
+            ccd_conf = CCDConfig.create_from_file(CLIENT_CONFIG_PATH)
+            form = ConfigCCDForm(formdata=MultiDict(ccd_conf.to_dict()))
+            context = { 'user': user, 'form': form}
+            return self.render_template(context)
+
 
 class AnalyzerSettingsView(View):
 
@@ -189,25 +196,39 @@ class AnalyzerSettingsView(View):
     def render_template(self, context):
         return render_template(self.get_template_name(), **context)
 
+    @login_required
     def dispatch_request(self):
-        if is_auth():
+        user = session_user()
+        form = ConfigAnalyzerForm()
 
-            user = session_user()
-            form = ConfigCCDForm()
+        analyzer_conf = AnalyzerConfig.create_from_file(ANALYZER_CONFIG_PATH)
 
+        if os.path.isfile(analyzer_conf.mask_path):
+            img_mask = url_for('static', filename=analyzer_conf.mask_path.split('static/')[1])
+        else:
+            img_mask = url_for('static', filename='img/not_found_img.png')
+
+        if request.method == 'POST':
             if form.validate_on_submit():
-                context = { 'user': user, 'form': form}
-                CCDConfig(form._to_dict()).export_to_file(CLIENT_CONFIG_PATH)
-                return self.render_template(context)
+                context = { 'user': user, 'form': form, 'img_mask': img_mask}
+
+                analyzer_config = AnalyzerConfig(form._to_dict())
+                analyzer_config.export_to_file(ANALYZER_CONFIG_PATH)
+
+                # Save the mask file in the proper path
+                f = form.mask_file.data
+                f.save(os.path.join(analyzer_config.mask_path))
+
+                return redirect(url_for('analyzer_settings_view'))
 
             else:
-                ccd_conf = CCDConfig.create_from_file(CLIENT_CONFIG_PATH)
-                form = ConfigCCDForm(formdata=MultiDict(ccd_conf.to_dict()))
-                context = { 'user': user, 'form': form}
+                context = { 'user': user, 'form': form, 'img_mask': img_mask}
                 return self.render_template(context)
 
         else:
-            abort(403, description="Login required")
+            form = ConfigAnalyzerForm(formdata=MultiDict(analyzer_conf.to_dict()))
+            context = { 'user': user, 'form': form, 'img_mask': img_mask}
+            return self.render_template(context)
 
 class LoginView(View):
 
@@ -247,29 +268,24 @@ class LogOutView(MethodView):
 
 class AnalyzeView(MethodView):
 
+    @login_required
     def post(self):
-        if is_auth():
-            # Check if it is positive or negative
-            data = json.loads(request.get_data())
-
-            filename = data['photo'].split('.')[-2].split('/')[-1]
-
-            if data['positive']:
-                img_destination = ImageRepository.POSITIVES
-            else:
-                img_destination = ImageRepository.DISCARDED
-
-            image_repository.move_files(filename, ImageRepository.CANDIDATES, img_destination)
-
-            img, header = next_candidate_image()
-            result = {
-                'photo': img,
-                'name': filename,
-                'header': header.to_dict() if header else {}
-            }
-            return jsonify(result)
+        # Check if it is positive or negative
+        data = json.loads(request.get_data())
+        filename = data['photo'].split('.')[-2].split('/')[-1]
+        if data['positive']:
+            img_destination = ImageRepository.POSITIVES
         else:
-            abort(403, description="Login required")
+            img_destination = ImageRepository.DISCARDED
+        image_repository.move_files(filename, ImageRepository.CANDIDATES, img_destination)
+        img, header = next_candidate_image()
+        result = {
+            'photo': img,
+            'name': filename,
+            'header': header.to_dict() if header else {}
+        }
+        return jsonify(result)
+
 
 
 #TODO: Improve this

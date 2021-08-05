@@ -39,3 +39,19 @@ class LoginForm(FlaskForm):
     username = StringField('Usename', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Log in')
+
+from flask_wtf.file import FileField, FileRequired
+from werkzeug.utils import secure_filename
+
+class ConfigAnalyzerForm(FlaskForm):
+
+    mask_path = StringField('Mask Path', render_kw={'readonly': True})
+    mask_file = FileField(validators=[FileRequired()])
+
+    submit = SubmitField('Update configuration')
+
+
+    def _to_dict(self):
+        return {
+            'mask_path': self.mask_path.data
+        }
