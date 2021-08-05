@@ -6,10 +6,12 @@
     <!-- Fill it-->
     <div class="container">
         <div class="row">
-          <div class="col-sm">
-            <div class="d-flex justify-content-center">
-                <form action="./settings" method="post" nocandidates>
+          <div class="col-sm" >
+            <div class="d-flex justify-content-center" style="margin-bottom: 20px;" >
+                <form action="./settings" method="post" nocandidates style=" width: 350px; border: 2px solid rgb(197, 194, 194);
+                border-radius: 25px; box-shadow: 0 0 20px rgb(228, 222, 222);">
                     {{ form.hidden_tag() }}
+                    <div style=" margin:20px">
 
                         <p>      
                             {{ render_field(form.device_name, class='form-control input-sm', placeholder='Device Name') }}
@@ -37,9 +39,13 @@
                         <p>                
                             {{ render_field(form.auto_config, class='form-control') }}
                         </p>
-                        <button type="submit" class="btn btn-primary mb-2 float-right">Update Configuration</button>
+                        <!--<button type="submit" class="btn btn-primary mb-2" style="text-align: center;">Update Configuration</button>
+                        -->
 
-
+                        <div  class="d-flex justify-content-center">
+                            <button type="submit" class="btn btn-primary">Update Configuration</button>
+                        </div>
+                    </div>
                 </form>
             </div>
           </div>

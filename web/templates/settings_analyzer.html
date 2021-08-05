@@ -7,11 +7,8 @@
     <!-- Fill it-->
     <div class="container">
         <div class="row">
-          <div class="col-sm">
-            <h5>Current mask</h5>
-            <img src="{{img_mask}}" class="img-fluid img-thumbnail">       
-          </div>
-          <div class="col-sm">
+
+          <div class="col-sm" style="box-shadow: 0 0 20px rgb(243, 239, 239); border-radius: 20px;">
             <form action="./settings" method="post" nocandidates enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
 
@@ -19,9 +16,17 @@
                     {{ render_field(form.mask_path, class='form-control input-medium', placeholder='Mask file path') }}
                 </p>
 
-                <p>                
-                    {{ render_field(form.mask_file) }}
-                </p>
+                <div class="row">
+                    <div class="col-sm">               
+                        {{ render_field(form.mask_file) }}
+                    </div>
+    
+                    <div class="col-sm">
+                        <h6>Current mask</h6>
+                        <img src="{{img_mask}}" class="img-fluid img-thumbnail">       
+                      </div>
+                </div>
+
 
                 <button type="submit" class="btn btn-primary mb-2 float-right">Update Configuration</button>
             </form>
