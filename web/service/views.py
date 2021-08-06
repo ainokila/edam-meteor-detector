@@ -154,6 +154,20 @@ class ValidateView(View):
         context = { "user": session_user(), "img": img, "name":name, "header":header}
         return self.render_template(context)
 
+class RepositoryView(View):
+
+    methods = ['GET']
+
+    def get_template_name(self):
+        return 'repository.html'
+
+    def render_template(self, context):
+        return render_template(self.get_template_name(), **context)
+
+    @login_required
+    def dispatch_request(self):
+        context = { "user": session_user()}
+        return self.render_template(context)
 
 class CCDSettingsView(View):
 
@@ -300,7 +314,7 @@ type_auth = {
 }
 
 
-class RepositoryView(MethodView):
+class RepositoryTypeView(MethodView):
 
     def post(self, img_type):
         if img_type in type_mapping:
@@ -325,7 +339,7 @@ class RepositoryView(MethodView):
         else:
             abort(404, description="Path not found")
 
-class RepositoryIndividualView(MethodView):
+class RepositoryTypeIndividualView(MethodView):
 
     def get(self, img_type, img_name):
         if img_type in type_mapping:
