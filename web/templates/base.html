@@ -7,6 +7,8 @@
   <meta name="description" content="">
   <title>SKY - {% block title %}{% endblock %}</title>
 
+  <link rel="shortcut icon" href="{{url_for('static', filename='img/favicon.ico') }}">
+
   <!-- Bootstrap core CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
@@ -68,19 +70,25 @@
             {% if user %}
             <li class="nav-item">
               <a class="nav-link" href="/positives">
-                <span data-feather="file"></span>
-                Last positive
+                <span data-feather="target"></span>
+                Detected Meteors
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/repository">
+                <span data-feather="archive"></span>
+                Repository <span class="sr-only">(current)</span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/candidates">
                 <span data-feather="image"></span>
-                Validate Photos <span class="sr-only">(current)</span>
+                Validate Candidates <span class="sr-only">(current)</span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/ccd/settings">
-                <span data-feather="settings"></span>
+                <span data-feather="sliders"></span>
                 CCD Client
               </a>
             </li>
@@ -93,20 +101,27 @@
             {% else -%}
             <li class="nav-item">
               <a class="nav-link active" href="/positives">
-                <span data-feather="file"></span>
-                Last positive
+                <span data-feather="target"></span>
+                Detected Meteors
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" href="/repository">
+                <span data-feather="archive"></span>
+                Repository <span class="sr-only">(current)</span>
+                <span data-feather="lock"></span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link disabled" href="/candidates">
                 <span data-feather="image"></span>
-                Validate Photos <span class="sr-only">(current)</span>
+                Validate Candidates <span class="sr-only">(current)</span>
                 <span data-feather="lock"></span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link disabled" href="/ccd/settings">
-                <span data-feather="settings"></span>
+                <span data-feather="sliders"></span>
                 CCD Client
                 <span data-feather="lock"></span>
               </a>

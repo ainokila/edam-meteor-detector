@@ -11,7 +11,9 @@ from flask import Flask
 from flask import render_template
 
 # Import for views
-from web.service.views import LastPositiveView, ValidateView, AnalyzerSettingsView, CCDSettingsView, LoginView, AnalyzeView, LogOutView, RepositoryView, RepositoryIndividualView
+from web.service.views import LastPositiveView, ValidateView, AnalyzerSettingsView
+from web.service.views import CCDSettingsView, LoginView, AnalyzeView, LogOutView
+from web.service.views import RepositoryTypeView, RepositoryTypeIndividualView, RepositoryView
 
 
 template_folder = os.environ['PYTHONPATH'] + '/web/templates'
@@ -31,8 +33,9 @@ app.add_url_rule('/candidates', view_func=ValidateView.as_view('candidates_view'
 
 app.add_url_rule('/result_analyze', view_func=AnalyzeView.as_view('analyze_view'))
 
-app.add_url_rule('/repository/<img_type>/search', view_func=RepositoryView.as_view('repository_view'))
-app.add_url_rule('/repository/<img_type>/<img_name>', view_func=RepositoryIndividualView.as_view('repository_individual_view'))
+app.add_url_rule('/repository', view_func=RepositoryView.as_view('repository_view'))
+app.add_url_rule('/repository/<img_type>/search', view_func=RepositoryTypeView.as_view('repository_type_view'))
+app.add_url_rule('/repository/<img_type>/<img_name>', view_func=RepositoryTypeIndividualView.as_view('repository_type_individual_view'))
 
 app.add_url_rule('/ccd/settings', view_func=CCDSettingsView.as_view('ccd_settings_view'))
 app.add_url_rule('/analyzer/settings', view_func=AnalyzerSettingsView.as_view('analyzer_settings_view'))
