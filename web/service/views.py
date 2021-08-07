@@ -362,8 +362,8 @@ type_mapping = {
 }
 
 type_auth = {
-    'candidates': False,
-    'positives': True,
+    'candidates': True,
+    'positives': False,
     'discarded': True,
     'raw': True
 }

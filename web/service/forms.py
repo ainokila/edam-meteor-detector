@@ -59,7 +59,7 @@ class ConfigAnalyzerForm(FlaskForm):
 
 class SearchRepositoryForm(FlaskForm):
 
-    start_date = DateTimeLocalField('Start Date', default=datetime.now(), format='%Y-%m-%dT%H:%M')
-    end_date = DateTimeLocalField('End Date', default=datetime.now() - timedelta(days=1), format='%Y-%m-%dT%H:%M')
+    start_date = DateTimeLocalField('Start Date', default=datetime.now() - timedelta(days=1), format='%Y-%m-%dT%H:%M')
+    end_date = DateTimeLocalField('End Date', default=datetime.now(), format='%Y-%m-%dT%H:%M')
 
     submit = SubmitField('Search')

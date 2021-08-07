@@ -1,6 +1,6 @@
 {
-    "auto_config": true,
-    "auto_start": true,
+    "auto_config": false,
+    "auto_start": false,
     "device_name": "QHY CCD QHY5-M-",
     "end_time": "13:00",
     "exposition_time": 5.0,
