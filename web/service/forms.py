@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField, SubmitField, DecimalField, validators, PasswordField
-from wtforms.fields.html5 import TimeField
+from wtforms.fields.html5 import TimeField, DateTimeLocalField
 from wtforms.validators import DataRequired, InputRequired
 from wtforms.validators import NumberRange
 
@@ -55,3 +56,10 @@ class ConfigAnalyzerForm(FlaskForm):
         return {
             'mask_path': self.mask_path.data
         }
+
+class SearchRepositoryForm(FlaskForm):
+
+    start_date = DateTimeLocalField('Start Date', default=datetime.now(), format='%Y-%m-%dT%H:%M')
+    end_date = DateTimeLocalField('End Date', default=datetime.now() - timedelta(days=1), format='%Y-%m-%dT%H:%M')
+
+    submit = SubmitField('Search')

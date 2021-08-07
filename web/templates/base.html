@@ -69,38 +69,38 @@
 
             {% if user %}
             <li class="nav-item">
-              <a class="nav-link" href="/positives">
+              <a class="nav-link {{is_active_url('/positives', 'selected')}}" href="/positives">
                 <span data-feather="target"></span>
                 Detected Meteors
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/repository">
+              <a class="nav-link {{is_active_url('/repository', 'selected')}}" href="/repository">
                 <span data-feather="archive"></span>
                 Repository <span class="sr-only">(current)</span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/candidates">
+              <a class="nav-link {{is_active_url('/candidates', 'selected')}}" href="/candidates">
                 <span data-feather="image"></span>
                 Validate Candidates <span class="sr-only">(current)</span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/ccd/settings">
+              <a class="nav-link {{is_active_url('/ccd/settings', 'selected')}}" href="/ccd/settings">
                 <span data-feather="sliders"></span>
                 CCD Client
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/analyzer/settings">
+              <a class="nav-link {{is_active_url('/analyzer/settings', 'selected')}}" href="/analyzer/settings">
                 <span data-feather="settings"></span>
                 Analyzer
               </a>
             </li>
             {% else -%}
             <li class="nav-item">
-              <a class="nav-link active" href="/positives">
+              <a class="nav-link {{is_active_url('/positives', 'selected')}}" href="/positives">
                 <span data-feather="target"></span>
                 Detected Meteors
               </a>

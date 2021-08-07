@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
+import re
 import json
 
+from datetime import datetime
 from functools import wraps
-
 from werkzeug.datastructures import MultiDict
 from flask.views import View, MethodView
 from flask import render_template, session, redirect, url_for, redirect, jsonify, abort, request
-
 
 from source.db.userdb import UserDB
 from source.model.repository import ImageRepository
@@ -17,8 +17,7 @@ from source.utils.variables import CLIENT_CONFIG_PATH, ANALYZER_CONFIG_PATH
 from source.model.ccdconfig import CCDConfig
 from source.model.analyzerconfig import AnalyzerConfig
 
-
-from web.service.forms import ConfigCCDForm, ConfigAnalyzerForm, LoginForm
+from web.service.forms import ConfigCCDForm, ConfigAnalyzerForm, LoginForm, SearchRepositoryForm
 
 
 image_repository = ImageRepository()
@@ -75,6 +74,48 @@ def get_images(img_type, offset, size):
             images_with_header.append({'img': img, 'header': header})
 
     return images_with_header[offset:offset+size]
+
+
+def search_images(img_types, start_date, end_date):
+    """ Search images filtering by type and dates
+
+    Args:
+        img_types (list): Allowed types in the search
+        start_date (str): Start date
+        end_date (str): End date
+
+    Returns:
+        list: List the images and the metadata
+    """
+    images_with_header = []
+
+    for itype in img_types:
+
+        if itype in type_mapping.keys():
+            img_type = type_mapping[itype]
+            img_path = 'data/' + itype + '/'
+        else:
+            raise Exception('Incorrect img_type %s'.format(img_type))
+
+        images = image_repository.list_files(img_type, extension='jpg')
+        if images:
+            for image in images:
+
+                try:
+                    match = re.search(r'\d{2}-\d{2}-\d{4}-\d{2}:\d{2}:\d{2}', image)
+                    date = datetime.strptime(match.group(), '%d-%m-%Y-%H:%M:%S')
+                except ValueError:
+                    continue
+                except AttributeError:
+                    continue
+
+                if start_date <= date and date <= end_date:
+                    filename = img_path + image
+                    img = url_for("static", filename=filename)
+                    header = get_header(path_file=img_type + image.split('.')[-2] + '.fit')
+                    images_with_header.append({'img': img, 'type': itype, 'header': header})
+
+    return images_with_header
 
 
 def get_image(img_type, img_name):
@@ -156,7 +197,7 @@ class ValidateView(View):
 
 class RepositoryView(View):
 
-    methods = ['GET']
+    methods = ['GET', 'POST']
 
     def get_template_name(self):
         return 'repository.html'
@@ -166,8 +207,18 @@ class RepositoryView(View):
 
     @login_required
     def dispatch_request(self):
-        context = { "user": session_user()}
+        
+        form = SearchRepositoryForm()
+        context = { "user": session_user(), "form": form}
+        img_types = ['candidates', 'positives', 'raw', 'discarded']
+
+        start_date = form.start_date.data
+        end_date = form.end_date.data
+
+        context['images'] = search_images(img_types, start_date, end_date)
+
         return self.render_template(context)
+
 
 class CCDSettingsView(View):
 
@@ -306,11 +357,15 @@ class AnalyzeView(MethodView):
 type_mapping = {
     'candidates': ImageRepository.CANDIDATES,
     'positives': ImageRepository.POSITIVES,
+    'discarded': ImageRepository().DISCARDED,
+    'raw': ImageRepository().RAW,
 }
 
 type_auth = {
     'candidates': False,
     'positives': True,
+    'discarded': True,
+    'raw': True
 }
 
 

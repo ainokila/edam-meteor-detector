@@ -8,7 +8,7 @@
 import os
 from flask import Flask
 
-from flask import render_template
+from flask import render_template, request
 
 # Import for views
 from web.service.views import LastPositiveView, ValidateView, AnalyzerSettingsView
@@ -25,6 +25,13 @@ app = Flask(__name__,
 
 #TODO: Move to secret env value
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4b'
+
+@app.context_processor
+def utility_processor():
+    def is_active_url(url, selected_class, default=False):
+        if url in request.base_url or default:
+            return selected_class #'selected'
+    return dict(is_active_url=is_active_url)
 
 
 app.add_url_rule('/', view_func=LastPositiveView.as_view('positives_root_view'))

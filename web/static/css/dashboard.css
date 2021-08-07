@@ -58,6 +58,10 @@ body {
   color: #007bff;
 }
 
+.sidebar .nav-link.selected {
+  color:rgb(53, 120, 184);
+}
+
 .sidebar .nav-link:hover .feather,
 .sidebar .nav-link.active .feather {
   color: inherit;
@@ -122,4 +126,9 @@ footer {
 
 #btn-load-images{
   padding: 0.85rem;
+}
+
+#menu-item-selected{
+  color: red;
+  background-color: yellow;
 }
