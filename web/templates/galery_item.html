@@ -1,0 +1,17 @@
+{% macro build_galery_item(image) %}
+
+  <div class="col-lg-4 col-md-4 col-6" style=" width: 350px; border: 2px solid rgb(197, 194, 194);
+  border-radius: 25px; box-shadow: 0 0 20px rgb(228, 222, 222);">
+      <div>
+          <img class="img-fluid img-thumbnail showImage" style="margin-top: 20px;"
+              src="{{image['img']}}" alt="">
+      </div>
+      <div>
+          <ul>
+              <li>Folder: {{image['type']}}</li>
+              <li>Date: {{image['header'].time}}</li>
+          </ul>
+      </div>
+  </div>
+
+{% endmacro %}

@@ -1,146 +1,183 @@
 <!doctype html>
 <html lang="en">
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <title>SKY - {% block title %}{% endblock %}</title>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <title>SKY - {% block title %}{% endblock %}</title>
 
-  <!-- Bootstrap core CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-    crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
+    <link rel="shortcut icon" href="{{url_for('static', filename='img/favicon.ico') }}">
 
-  <style>
-    .bd-placeholder-img {
-      font-size: 1.125rem;
-      text-anchor: middle;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"></script>
 
-    @media (min-width: 768px) {
-      .bd-placeholder-img-lg {
-        font-size: 3.5rem;
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
       }
-    }
-  </style>
-  <!-- Custom styles for this template -->
-  <!-- <link href="./static/dashboard.css" rel="stylesheet"> -->
-  <link rel="stylesheet" href="{{url_for("static", filename='css/dashboard.css')}}">
 
-</head>
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <!-- <link href="./static/dashboard.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="{{url_for("static", filename='css/dashboard.css')}}">
 
-<body>
-  <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/">Sky Camera</a>
-    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
-      data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <ul class="navbar-nav px-3">
-      <li class="nav-item text-nowrap">
-        {% if user %}
-        <a class="text-info"> {{user.username}}</a>
-        <button type="button" class="btn btn-warning" onclick="location.href='/logout';">Log out</button>
-        {% else -%}
-        <button type="button" class="btn btn-info" onclick="location.href='/login';">Login</button>
-        {% endif -%}
-      </li>
-    </ul>
-  </nav>
+  </head>
 
-  <div class="container-fluid">
-    <div class="row">
-      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-        <div class="sidebar-sticky pt-3">
-          <ul class="nav flex-column">
+  <body>
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+      <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/">Sky Camera</a>
+      <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
+        data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          {% if user %}
+          <a class="text-info"> {{user.username}}</a>
+          <button type="button" class="btn btn-warning" onclick="location.href='/logout';">Log out</button>
+          {% else -%}
+          <button type="button" class="btn btn-info" onclick="location.href='/login';">Login</button>
+          {% endif -%}
+        </li>
+      </ul>
+    </nav>
 
-            {% if user %}
-            <li class="nav-item">
-              <a class="nav-link" href="/positives">
-                <span data-feather="file"></span>
-                Last positive
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/candidates">
-                <span data-feather="image"></span>
-                Validate Photos <span class="sr-only">(current)</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/ccd/settings">
-                <span data-feather="settings"></span>
-                CCD Client
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/analyzer/settings">
-                <span data-feather="settings"></span>
-                Analyzer
-              </a>
-            </li>
-            {% else -%}
-            <li class="nav-item">
-              <a class="nav-link active" href="/positives">
-                <span data-feather="file"></span>
-                Last positive
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link disabled" href="/candidates">
-                <span data-feather="image"></span>
-                Validate Photos <span class="sr-only">(current)</span>
-                <span data-feather="lock"></span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link disabled" href="/ccd/settings">
-                <span data-feather="settings"></span>
-                CCD Client
-                <span data-feather="lock"></span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link disabled" href="/analyzer/settings">
-                <span data-feather="settings"></span>
-                Analyzer
-                <span data-feather="lock"></span>
-              </a>
-            </li>
-            {% endif -%}
+    <div class="container-fluid">
+      <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-ligth sidebar collapse">
+          <div>
+            <div class="sidebar-sticky pt-3" >
+              <ul class="nav flex-column">
 
-          </ul>
-        </div>
-      </nav>
+                {% if user %}
+                <li class="nav-item">
+                  <a class="nav-link {{is_active_url('/positives', 'selected')}}" href="/positives">
+                    <span data-feather="target"></span>
+                    Detected Meteors
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link {{is_active_url('/repository', 'selected')}}" href="/repository">
+                    <span data-feather="archive"></span>
+                    Repository <span class="sr-only">(current)</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link {{is_active_url('/candidates', 'selected')}}" href="/candidates">
+                    <span data-feather="image"></span>
+                    Validate Candidates <span class="sr-only">(current)</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link {{is_active_url('/ccd/settings', 'selected')}}" href="/ccd/settings">
+                    <span data-feather="sliders"></span>
+                    CCD Client
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link {{is_active_url('/analyzer/settings', 'selected')}}" href="/analyzer/settings">
+                    <span data-feather="settings"></span>
+                    Analyzer
+                  </a>
+                </li>
+                {% else -%}
+                <li class="nav-item">
+                  <a class="nav-link {{is_active_url('/positives', 'selected')}}" href="/positives">
+                    <span data-feather="target"></span>
+                    Detected Meteors
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link disabled" href="/repository">
+                    <span data-feather="archive"></span>
+                    Repository <span class="sr-only">(current)</span>
+                    <span data-feather="lock"></span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link disabled" href="/candidates">
+                    <span data-feather="image"></span>
+                    Validate Candidates <span class="sr-only">(current)</span>
+                    <span data-feather="lock"></span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link disabled" href="/ccd/settings">
+                    <span data-feather="sliders"></span>
+                    CCD Client
+                    <span data-feather="lock"></span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link disabled" href="/analyzer/settings">
+                    <span data-feather="settings"></span>
+                    Analyzer
+                    <span data-feather="lock"></span>
+                  </a>
+                </li>
+                {% endif -%}
 
-      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-        <div
-          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 class="h2">{% block page_name %}{% endblock %}</h1>
-        </div>
+              </ul>
+            </div>
+          </div>
+          
+        </nav>
 
-        {% block content %}{% endblock %}
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4" style="box-shadow: inset 1px 0 0 rgba(0, 0, 0, .1);">
+          <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">{% block page_name %}{% endblock %}</h1>
+          </div>
 
-      </main>
+          {% block content %}{% endblock %}
+
+        </main>
+      </div>
     </div>
-  </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js"></script>
-  <script src="{{url_for("static", filename='js/dashboard.js')}}"></script>
-  {% block additional_js %}{% endblock %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js"></script>
+    <script src="{{url_for("static", filename='js/dashboard.js')}}"></script>
+    {% block additional_js %}{% endblock %}
 
 
-</body>
+  </body>
+  <section>
+    <!-- Footer -->
+    <footer class="text-center text-white" style="background-color: #343a40!important;">
+      <!-- Grid container -->
+      <div class="container p-4 pb-0">
+        <!-- Section: CTA -->
+        <!-- Section: CTA -->
+      </div>
+      <!-- Grid container -->
+
+      <!-- Copyright -->
+      <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+        © 2020 Copyright:
+        <a class="text-white" href="https://mdbootstrap.com/">MDBootstrap.com</a>
+      </div>
+      <!-- Copyright -->
+    </footer>
+    <!-- Footer -->
+  </section>
 
 </html>
