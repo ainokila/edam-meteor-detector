@@ -42,4 +42,4 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Testing unit tests
-        run: export PYTHONPATH=`pwd` && pytest tests -v
+        run: python -m pytest tests -v
