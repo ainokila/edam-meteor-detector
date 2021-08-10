@@ -1,4 +1,4 @@
-#pyindi-client==0.2.5
+pyindi-client==0.2.7
 numpy==1.19.2
 astropy==4.0.1
 Pillow==8.2.0
@@ -7,3 +7,4 @@ yajs==1.0.2
 pytest==6.1.0
 Flask==1.1.2
 Flask-WTF==0.14.3
+scikit-image==0.18.2

@@ -9,21 +9,23 @@ from source.model.image.fits import ImageFits
 
 from source.utils.image.formats import _fits_to_jpg
 from source.model.repository import ImageRepository
-
-
-# Check the following https://www.meteornews.net/2020/05/05/d64-nl-meteor-detecting-project/
-# https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
-
+from source.analysis.meteor import MeteorDetector
+from source.model.analyzerconfig import AnalyzerConfig
+from source.utils.variables import ANALYZER_CONFIG_PATH
 
 class ImageAnalyzer(Process):
 
     logger = logging.getLogger('ImageAnalyzer')
-    image_repository = ImageRepository()
+    IMAGE_REPOSITORY = ImageRepository()
+    SETTINGS_PATH = ANALYZER_CONFIG_PATH
 
     def __init__(self, consumer_pipe):
         self.consumer = consumer_pipe
         self.stop = Event()
         self.previous_image = None
+        self.detector = None
+        self.analyzer_conf = AnalyzerConfig.create_from_file(ANALYZER_CONFIG_PATH)
+
         super(ImageAnalyzer, self).__init__()
 
     def run(self):
@@ -38,19 +40,31 @@ class ImageAnalyzer(Process):
             image.load_data_from_file(filename)
 
             result = False
+            image_name = self.export_to_jpg(filename, image)
+
             try:
-                result = self.analyze_image(filename=filename, new_image=image)
+                image_path = ImageRepository.RAW + image_name + '.jpg'
+                if self.detector is None:
+                    self.detector = MeteorDetector(image_path, self.analyzer_conf.mask_path)
+                    self.logger.info('Initializing meteor detector')
+                    continue
+                else:
+                    self.detector.update_img(image_path)
+
+                result = self.detector.has_meteor()
             except Exception as e:
                 self.logger.critical("Exception during analyze image", exc_info=True)
 
-            image_name = self.export_to_jpg(filename, image)
+
             if result:
+                self.logger.info("DETECTION - Posible positive in %s", filename)
                 self.generate_gif(image_name)
                 self.move_images(image_name, ImageRepository.RAW, ImageRepository.CANDIDATES)
             else:
+                self.logger.info("DETECTION - Discarding image %s", filename)
                 self.move_images(image_name, ImageRepository.RAW, ImageRepository.DISCARDED)
 
-    def generate_gif(self, image_name, number_images):
+    def generate_gif(self, image_name, number_images=2):
         """ Generates a GIF using the previos N images.
 
         Args:
@@ -59,27 +73,6 @@ class ImageAnalyzer(Process):
         """
         self.logger.info("Generating gif for %s", image_name)
         pass
-
-    def analyze_image(self, filename, new_image):
-        """ Analyzes an image searching possible meteors
-
-        Args:
-            new_image (ImageFits): Image fits to be analyzed
-
-        Returns:
-            boolean: returns True, if there is a possible meteor
-        """
-        self.logger.info("Analyzer skipped")
-        return False
-
-        lines = new_image.detect_lines()
-        # lines = [1,3,4,5,6]
-        if len(lines): # > umbral:
-            self.logger.info("Posible positive %s lines %s", filename, len(lines))
-            return True
-        else:
-            self.logger.info("Discarding image %s lines %s", filename, len(lines))
-            return False
 
     def export_to_jpg(self, filename, new_image):
         """Save an image using jpg format
@@ -104,7 +97,7 @@ class ImageAnalyzer(Process):
             source (str): Source path
             destination (str): Destionation path
         """
-        self.image_repository.move_files(image_name, source, destination)
+        self.IMAGE_REPOSITORY.move_files(image_name, source, destination)
 
     def stop_worker(self):
         self.stop.set()

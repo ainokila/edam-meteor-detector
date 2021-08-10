@@ -134,3 +134,37 @@ footer {
   color: red;
   background-color: yellow;
 }
+
+
+/* 
+Repository gallery
+*/ 
+.repository-form{
+  width: 350px;
+  border: 2px solid rgb(197, 194, 194);
+  border-radius: 25px;
+  box-shadow: 0 0 20px rgb(228, 222, 222);
+}
+
+.repository-form > .repository-form-content{
+  margin:20px;
+}
+
+.repository-form > .repository-form-button{
+  margin:20px;
+}
+
+.repository-gallery{
+  padding-bottom: 100px;
+}
+
+.repository-gallery > .repository-gallery-card{
+  width: 350px; 
+  border: 2px solid rgb(197, 194, 194);
+  border-radius: 25px;
+  box-shadow: 0 0 20px rgb(228, 222, 222);
+}
+
+.repository-gallery-image{
+  margin-top: 20px;
+}

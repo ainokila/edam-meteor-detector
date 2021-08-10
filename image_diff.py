@@ -1,71 +1,79 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import cv2 as cv
-import math
+
+from skimage.metrics import structural_similarity
+import cv2
 import numpy as np
 
-from source.model.image.fits import ImageFits
+MASK = '/home/ainokila/Escritorio/imgs/test/mask_2.png'
+IMG_1 = '/home/ainokila/Escritorio/imgs/test/normal.jpg'
+IMG_2 = '/home/ainokila/Escritorio/imgs/test/white.jpg'
 
-a = ImageFits()
-a.load_data_from_file('web/static/data/raw/image1.fits')
-b = ImageFits()
-b.load_data_from_file('web/static/data/raw/image2.fits')
 
-# a.diff(b).save_image('data/diff.fits')
-# print(diff.data[0].data)
-# 
+def lines_detector(img_1, img_2, img_filter, ui_view=False):
 
-new = a.diff(b)
+    mask = cv2.imread(img_filter)
+    before = cv2.imread(img_1)
+    after = cv2.imread(img_2)
 
-image = new.data[0].data
+    # Convert images to grayscale
+    before_gray = cv2.cvtColor(before, cv2.COLOR_BGR2GRAY)
+    after_gray = cv2.cvtColor(after, cv2.COLOR_BGR2GRAY)
+    mask_gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
-# # Make a gray-scale copy and save the result in the variable 'gray'
-# gray = image #cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-# 
-# # Apply blur and save the result in the variable 'blur'
-# blur = cv.GaussianBlur(gray, (5,5), 0)
-# 
-# # Apply the Canny edge algorithm
-# canny = cv.Canny(blur, 100, 200, 3)
+    # Compute SSIM between two images
+    before_1 = cv2.subtract(before_gray, mask_gray)
+    after_1 = cv2.subtract(after_gray, mask_gray)
 
-# lines = cv.HoughLinesP(canny, 1, np.pi/180, 25, minLineLength=50, maxLineGap=5)
+    import pdb; pdb.set_trace()
 
-lines = new.detect_lines(min_line=10, max_line_gap=5)
+    (score, diff) = structural_similarity(before_1, after_1, full=True)
+    #score = 0
+    #diff = cv2.subtract(before_1, after_1)
+    print("Image similarity", score)
 
-print(len(lines))
+    # The diff image contains the actual image differences between the two images
+    # and is represented as a floating point data type in the range [0,1] 
+    # so we must convert the array to 8-bit unsigned integers in the range
+    # [0,255] before we can use it with OpenCV
+    diff = (diff * 255).astype("uint8")
 
-if lines is not None:
-    for i in range(0, len(lines)):
-        rho = lines[i][0][0]
-        theta = lines[i][0][1]
-        a = math.cos(theta)
-        b = math.sin(theta)
-        x0 = a * rho
-        y0 = b * rho
-        pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
-        pt2 = (int(x0 - 1000*(-b)), int(y0 - 1000*(a)))
-        cv.line(image, pt1, pt2, (0,0,255), 3, cv.LINE_AA)
+    kernel_size = 5
+    blur_gray = cv2.GaussianBlur(diff,(kernel_size, kernel_size),0)
 
-cv.imshow("Detected Lines (in red) - Standard Hough Line Transform", image)
+    low_threshold = 1
+    high_threshold = 150
+    edges = cv2.Canny(blur_gray, low_threshold, high_threshold)
 
-cv.waitKey()
+    rho = 1  # distance resolution in pixels of the Hough grid
+    theta = np.pi / 180  # angular resolution in radians of the Hough grid
+    threshold = 15  # minimum number of votes (intersections in Hough grid cell)
+    min_line_length = 20  # minimum number of pixels making up a line
+    max_line_gap = 20  # maximum gap in pixels between connectable line segments
+    line_image = np.copy(diff) * 0  # creating a blank to draw lines on
 
-# Aplicar suavizado Gaussiano
-# img = a.diff(b).data[0].data
-# 
-# gauss = cv2.GaussianBlur(img, (5,5), 0)
-#  
-# canny = cv2.Canny(gauss, 50, 150)
-# 
-# # Buscamos los contornos
-# (contornos,_) = cv2.findContours(canny.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-# 
-# # Mostramos el número de monedas por consola
-# print("He encontrado {} objetos".format(len(contornos)))
-# 
-# 
-# cv2.imshow('Viewer', canny)
-# # # print(fits.HDUList(hdus=[fits.ImageHDU(data=backSub.apply(img2))])[0].data)
-#  
-# if cv2.waitKey(20000) & 0xFF == ord('q'):
-#     exit
+    # Run Hough on edge detected image
+    # Output "lines" is an array containing endpoints of detected line segments
+    lines = cv2.HoughLinesP(edges, rho, theta, threshold, np.array([]),
+                        min_line_length, max_line_gap)
+
+    print(lines)
+
+    if ui_view:
+        for line in lines:
+            for x1,y1,x2,y2 in line:
+                cv2.line(line_image,(x1,y1),(x2,y2),(255,0,0),2)
+        
+        # Draw the lines on the  image
+        lines_edges = cv2.addWeighted(diff, 0.8, line_image, 1, 0)
+
+        # cv2.imshow("mask_gray",mask_gray)
+        cv2.imshow("diff", diff)
+        cv2.imshow("detected lines", line_image)
+        cv2.waitKey(0)
+
+    return score, lines
+
+
+
+print(lines_detector(IMG_1, IMG_2, MASK, ui_view=True))
