@@ -56,21 +56,22 @@ def session_user():
 
 
 def get_images(img_type, offset, size):
+    """ Gets images by type
 
-    if img_type == ImageRepository.POSITIVES:
-        img_path = 'data/positives/'
-    elif img_type == ImageRepository.CANDIDATES:
-        img_path = 'data/candidates/'
-    else:
-        raise Exception('Incorrect img_type')
+    Args:
+        img_type (str): Type of the image
+        offset (int): Offset count
+        size (int): Number of elements to return
 
+    Returns:
+        list: List with dicts with img path and fits header objects
+    """
     images = image_repository.list_files(img_type, extension='jpg')
     images_with_header = []
     if images:
-        for image in images:
-            filename = img_path + image
-            img = url_for("static", filename=filename)
-            header = get_header(path_file=img_type + image.split('.')[-2] + '.fit')
+        for image_name in images:
+            img = url_for('get_img', img_type=img_type, img_name=image_name, extension='jpg')
+            header = get_header(path_file=ImageRepository.TYPE_MAPPING[img_type] + image_name + '.fit')
             images_with_header.append({'img': img, 'header': header})
 
     return images_with_header[offset:offset+size]
@@ -89,13 +90,7 @@ def search_images(img_types, start_date, end_date):
     """
     images_with_header = []
 
-    for itype in img_types:
-
-        if itype in type_mapping.keys():
-            img_type = type_mapping[itype]
-            img_path = 'data/' + itype + '/'
-        else:
-            raise Exception('Incorrect img_type %s'.format(img_type))
+    for img_type in img_types:
 
         images = image_repository.list_files(img_type, extension='jpg')
         if images:
@@ -110,49 +105,64 @@ def search_images(img_types, start_date, end_date):
                     continue
 
                 if start_date <= date and date <= end_date:
-                    filename = img_path + image
-                    img = url_for("static", filename=filename)
-                    header = get_header(path_file=img_type + image.split('.')[-2] + '.fit')
-                    images_with_header.append({'img': img, 'type': itype, 'header': header})
+                    img = url_for('get_img', img_type=img_type, img_name=image, extension='jpg')
+                    header = get_header(path_file=ImageRepository.TYPE_MAPPING[img_type] + image + '.fit')
+                    images_with_header.append({'img': img, 'type': img_type, 'header': header})
 
     return images_with_header
 
 
 def get_image(img_type, img_name):
-    if img_type == ImageRepository.POSITIVES:
-        img_path = 'data/positives/'
-    elif img_type == ImageRepository.CANDIDATES:
-        img_path = 'data/candidates/'
-    else:
-        raise Exception('Incorrect img_type')
+    """ Gets image path and fits header
 
-    image = image_repository.find_file(img_type, img_name, extension='jpg')
-    filename = img_path + image
-    img = url_for("static", filename=filename)
-    header = get_header(path_file=img_type + image.split('.')[-2] + '.fit')
+    Args:
+        img_type (str): Type of the image
+        img_name (str): Image name
+
+    Returns:
+        dict: Dict with img path and fits header object
+    """
+    image_name = image_repository.find_file(img_type, img_name, extension='jpg')
+    img = url_for('get_img', img_type=img_type, img_name=img_name, extension='jpg')
+    header = get_header(path_file=ImageRepository.TYPE_MAPPING[img_type] + image_name + '.fit')
     return {'img': img, 'header': header}
 
 def last_positive():
-    images = image_repository.list_files(ImageRepository.POSITIVES, extension='jpg')
+    """ Gets the last image clasified as positive
+
+    Returns:
+        list: List with img path and fits header object
+    """
+    images = image_repository.list_files('positives', extension='jpg')
     img = None
     header = None
     if images:
-        filename = 'data/positives/' + images[0]
-        img = url_for("static", filename=filename)
-        header = get_header(path_file=ImageRepository.POSITIVES + images[0].split('.')[-2] + '.fit')
+        image_name = images[0]
+        img = url_for('get_img', img_type='positives', img_name=image_name, extension='jpg')
+        header = get_header(path_file=ImageRepository.POSITIVES + image_name + '.fit')
     return img, header
 
 def next_candidate_image():
-    images = image_repository.list_files(ImageRepository.CANDIDATES, extension='jpg')
+    """ Gets the next candidate image
+
+    Returns:
+        list: List with img path and fits header object
+    """
+    images = image_repository.list_files('candidates', extension='jpg')
     img = None
     header = None
     if images:
-        filename = 'data/candidates/' + images[0]
-        img = url_for("static", filename=filename)
-        header = get_header(path_file=ImageRepository.CANDIDATES + images[0].split('.')[-2] + '.fit')
+        image_name = images[0]
+        img = url_for('get_img', img_type='candidates', img_name=image_name, extension='jpg')
+        header = get_header(path_file=ImageRepository.CANDIDATES + image_name + '.fit')
     return img, header
 
 def get_header(path_file):
+    """ Gets header Fits using a path file
+
+    Returns:
+        HeaderFits: HeaderFits object
+    """
     fits = ImageFits()
     fits.load_data_from_file(path_file)
     return fits.header
@@ -170,7 +180,7 @@ class LastPositiveView(View):
     def dispatch_request(self):
         user = None
         img, header = last_positive()
-        name = img.split('.')[-2].split('/')[-1]
+        name = img.split('/')[-2]
         context = { "img": img, "name":name, "header":header}
         if is_auth():
             user = session_user()
@@ -191,7 +201,7 @@ class ValidateView(View):
     @login_required
     def dispatch_request(self):
         img, header = next_candidate_image()
-        name = img.split('.')[-2].split('/')[-1]
+        name = img.split('/')[-2]
         context = { "user": session_user(), "img": img, "name":name, "header":header}
         return self.render_template(context)
 
@@ -337,7 +347,7 @@ class AnalyzeView(MethodView):
     def post(self):
         # Check if it is positive or negative
         data = json.loads(request.get_data())
-        filename = data['photo'].split('.')[-2].split('/')[-1]
+        filename = data['photo'].split('/')[-2]
         if data['positive']:
             img_destination = ImageRepository.POSITIVES
         else:
@@ -357,7 +367,7 @@ class AnalyzeView(MethodView):
 type_mapping = {
     'candidates': ImageRepository.CANDIDATES,
     'positives': ImageRepository.POSITIVES,
-    'discarded': ImageRepository().DISCARDED,
+    'discarded': ImageRepository.DISCARDED,
     'raw': ImageRepository().RAW,
 }
 
@@ -380,7 +390,7 @@ class RepositoryTypeView(MethodView):
                 size = data.get('size', 0)
 
                 result = {'data': [] }
-                for img_result in get_images(type_mapping[img_type], offset, size):
+                for img_result in get_images(img_type, offset, size):
                     result['data'].append(
                         {
                             'photo': img_result['img'],
@@ -399,7 +409,7 @@ class RepositoryTypeIndividualView(MethodView):
     def get(self, img_type, img_name):
         if img_type in type_mapping:
             if not type_auth[img_type] or is_auth():
-                image = get_image(type_mapping[img_type], img_name)                
+                image = get_image(img_type, img_name)                
                 result = {
                     'photo': image['img'],
                     'name': img_name,

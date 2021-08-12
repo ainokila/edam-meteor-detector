@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+
 # Vagrant
 .vagrant/
 
@@ -10,7 +11,8 @@ __pycache__/
 *.so
 
 # Project data
-web/static/data/*
+web/static/data/**/*.jpg
+web/static/data/**/*.fit
 
 # Distribution / packaging
 .Python

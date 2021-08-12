@@ -8,12 +8,14 @@
 import os
 from flask import Flask
 
-from flask import render_template, request
+from flask import render_template, request, send_from_directory, url_for
+
 
 # Import for views
 from web.service.views import LastPositiveView, ValidateView, AnalyzerSettingsView
 from web.service.views import CCDSettingsView, LoginView, AnalyzeView, LogOutView
 from web.service.views import RepositoryTypeView, RepositoryTypeIndividualView, RepositoryView
+from source.utils.variables import REPOSITORY_IMG_DATA_PATH
 
 
 template_folder = os.environ['PYTHONPATH'] + '/web/templates'
@@ -32,6 +34,21 @@ def utility_processor():
         if url in request.base_url or default:
             return selected_class #'selected'
     return dict(is_active_url=is_active_url)
+
+@app.route("/views/<img_type>/<img_name>/<extension>")
+def get_img(img_type, img_name, extension):
+
+    img_type = os.path.basename(img_type)
+    img_name = os.path.basename(img_name)
+    extension = os.path.basename(extension)
+
+    path_file = REPOSITORY_IMG_DATA_PATH + '/' + img_type + '/' + img_name + '.' + extension
+
+    if os.path.isfile(path_file):
+        return send_from_directory(REPOSITORY_IMG_DATA_PATH + '/' + img_type + '/', img_name + '.' + extension)
+    else:
+        return send_from_directory(static_folder, 'img/not_found_img.png')
+
 
 
 app.add_url_rule('/', view_func=LastPositiveView.as_view('positives_root_view'))

@@ -29,7 +29,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <div id="gallery" class="row text-center text-lg-left justify-content-around scrollmenu repository-gallery">
-                    {% for image in [] %}
+                    {% for image in images %}
                         {{build_galery_item(image)}}
                     {% else %}
                         <h5>No results found</h5>
