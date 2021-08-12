@@ -65,14 +65,14 @@
         </div>
     </div>
 </div>
-
+{% if user %}
 <div class="d-flex justify-content-center mb-5">
-
     <button class="btn btn-outline-secondary mb-6" id="btn-load-images">Load more images</button>
-
 </div>
+{% endif -%}
 
 {% endblock %}
+
 
 {% block additional_js %}
     <script src="{{url_for("static", filename='js/show_photo.js')}}"></script>

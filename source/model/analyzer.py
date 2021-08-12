@@ -25,7 +25,6 @@ class ImageAnalyzer(Process):
         self.previous_image = None
         self.detector = None
         self.analyzer_conf = AnalyzerConfig.create_from_file(ANALYZER_CONFIG_PATH)
-
         super(ImageAnalyzer, self).__init__()
 
     def run(self):
