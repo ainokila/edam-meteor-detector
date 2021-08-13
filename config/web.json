@@ -1,0 +1,6 @@
+{
+    "FLASK_ENV": "development",
+    "TESTING": true,
+    "DEBUG": true,
+    "SECRET_KEY": "7110c8ae51a4b5af97be6534caef90e4b"
+}
