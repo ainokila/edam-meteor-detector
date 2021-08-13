@@ -6,8 +6,9 @@
 # python web/controller/main.py
 
 import os
-from flask import Flask
+import json
 
+from flask import Flask
 from flask import render_template, request, send_from_directory, url_for
 
 
@@ -15,27 +16,26 @@ from flask import render_template, request, send_from_directory, url_for
 from web.service.views import LastPositiveView, ValidateView, AnalyzerSettingsView
 from web.service.views import CCDSettingsView, LoginView, AnalyzeView, LogOutView
 from web.service.views import RepositoryTypeView, RepositoryTypeIndividualView, RepositoryView
-from source.utils.variables import REPOSITORY_IMG_DATA_PATH
+from source.utils.variables import REPOSITORY_IMG_DATA_PATH, WEB_CONFIG_PATH
 
 
 template_folder = os.environ['PYTHONPATH'] + '/web/templates'
 static_folder = os.environ['PYTHONPATH'] + '/web/static'
 
-app = Flask(__name__, 
+app = Flask('meteor_detection_web', 
             template_folder=template_folder,
             static_folder=static_folder)
 
-#TODO: Move to secret env value
-app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4b'
+app.config.from_file(WEB_CONFIG_PATH, load=json.load)
 
 @app.context_processor
 def utility_processor():
     def is_active_url(url, selected_class, default=False):
         if url in request.base_url or default:
-            return selected_class #'selected'
+            return selected_class
     return dict(is_active_url=is_active_url)
 
-@app.route("/views/<img_type>/<img_name>/<extension>")
+@app.route("/views/<img_type>/<img_name>/formats/<extension>")
 def get_img(img_type, img_name, extension):
 
     img_type = os.path.basename(img_type)
@@ -73,6 +73,7 @@ app.add_url_rule('/logout', view_func=LogOutView.as_view('logout_view'))
 def page_not_found(e):
     return render_template('404.html'), 404
 
+
 @app.errorhandler(404)
 def forbidden(e):
     return render_template('403.html'), 403
@@ -81,4 +82,4 @@ app.register_error_handler(404, page_not_found)
 app.register_error_handler(403, forbidden)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
