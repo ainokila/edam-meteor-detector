@@ -3,6 +3,7 @@
 import os
 import re
 import json
+import requests
 
 from datetime import datetime
 from functools import wraps
@@ -13,7 +14,7 @@ from flask import render_template, session, redirect, url_for, redirect, jsonify
 from source.db.userdb import UserDB
 from source.model.repository import ImageRepository
 from source.model.image.fits import ImageFits
-from source.utils.variables import CLIENT_CONFIG_PATH, ANALYZER_CONFIG_PATH
+from source.utils.variables import CLIENT_CONFIG_PATH, ANALYZER_CONFIG_PATH, WEATHER_CONFIG_PATH
 from source.model.ccdconfig import CCDConfig
 from source.model.analyzerconfig import AnalyzerConfig
 
@@ -304,6 +305,61 @@ class AnalyzerSettingsView(View):
             form = ConfigAnalyzerForm(formdata=MultiDict(analyzer_conf.to_dict()))
             context = { 'user': user, 'form': form, 'img_mask': img_mask}
             return self.render_template(context)
+
+
+class WeatherView(View):
+
+    methods = ['GET']
+
+    def get_template_name(self):
+        return 'weather.html'
+
+    def render_template(self, context):
+        return render_template(self.get_template_name(), **context)
+
+    def dispatch_request(self):
+
+        url_api = 'https://api.openweathermap.org/data/2.5/onecall?lat={}&lon={}&appid={}&lang={}&units={}&exclude={}'
+
+        with open(WEATHER_CONFIG_PATH) as weather_file:
+            weather_config = json.load(weather_file)
+
+        excluded_sections = 'minutely,hourly,alerts'
+        latitude = weather_config.get('latitude', '0')
+        longitude = weather_config.get('longitude', '0')
+        units = weather_config.get('units', 'metric')
+        lang = weather_config.get('language', 'en')
+        api_key = weather_config.get('api_key', '')
+        location = weather_config.get('location', 'Unknown')
+
+        weather = requests.get(url_api.format(latitude, longitude, api_key, lang, units, excluded_sections)).json()
+
+        weather_today = {
+            'location': location,
+            'date': datetime.now().strftime("%d %B, %Y"),
+            'temp': weather['current']['temp'],
+            'description': weather['current']['weather'][0]['description'],
+            'clouds_percent': weather['current']['clouds'],
+            'day_name': datetime.fromtimestamp(weather['current']['dt']).strftime("%A")
+        }
+
+        weather_days = []
+        for day in weather['daily']:
+            weather_day = {
+                'weather_icon_code': day['weather'][0]['icon'],
+                'clouds_percent': day['clouds'],
+                'moon_phase': int(day['moon_phase'] * 100),
+                'day_name': datetime.fromtimestamp(day['dt']).strftime("%A")
+            }
+            weather_days.append(weather_day)
+
+        context = {'weather_today': weather_today, 'weather_days': weather_days[:6]}
+        if is_auth():
+            user = session_user()
+            context.update({ "user": user })
+        return self.render_template(context)
+
+
 
 class LoginView(View):
 

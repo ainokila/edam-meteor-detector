@@ -37,6 +37,7 @@
       }
     </style>
     <link rel="stylesheet" href="{{url_for("static", filename='css/dashboard.css')}}">
+    <link rel="stylesheet" href="{{url_for("static", filename='css/weather.css')}}">
 
   </head>
 
@@ -74,6 +75,12 @@
                   </a>
                 </li>
                 <li class="nav-item">
+                  <a class="nav-link {{is_active_url('/weather', 'selected')}}" href="/weather">
+                    <span data-feather="cloud"></span>
+                    Weather
+                  </a>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link {{is_active_url('/repository', 'selected')}}" href="/repository">
                     <span data-feather="archive"></span>
                     Repository <span class="sr-only">(current)</span>
@@ -102,6 +109,12 @@
                   <a class="nav-link {{is_active_url('/positives', 'selected')}}" href="/positives">
                     <span data-feather="target"></span>
                     Detected Meteors
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link {{is_active_url('/weather', 'selected')}}" href="/weather">
+                    <span data-feather="cloud"></span>
+                    Weather
                   </a>
                 </li>
                 <li class="nav-item">
