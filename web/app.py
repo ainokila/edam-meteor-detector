@@ -14,7 +14,7 @@ from flask import render_template, request, send_from_directory, url_for
 
 # Import for views
 from web.service.views import LastPositiveView, ValidateView, AnalyzerSettingsView
-from web.service.views import CCDSettingsView, LoginView, AnalyzeView, LogOutView
+from web.service.views import CCDSettingsView, LoginView, AnalyzeView, LogOutView, WeatherView
 from web.service.views import RepositoryTypeView, RepositoryTypeIndividualView, RepositoryView
 from source.utils.variables import REPOSITORY_IMG_DATA_PATH, WEB_CONFIG_PATH
 
@@ -54,6 +54,7 @@ def get_img(img_type, img_name, extension):
 app.add_url_rule('/', view_func=LastPositiveView.as_view('positives_root_view'))
 app.add_url_rule('/positives', view_func=LastPositiveView.as_view('positives_view'))
 app.add_url_rule('/candidates', view_func=ValidateView.as_view('candidates_view'))
+app.add_url_rule('/weather', view_func=WeatherView.as_view('weather_view'))
 
 app.add_url_rule('/result_analyze', view_func=AnalyzeView.as_view('analyze_view'))
 
@@ -77,6 +78,10 @@ def page_not_found(e):
 @app.errorhandler(404)
 def forbidden(e):
     return render_template('403.html'), 403
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template('server_error.html'), 403
 
 app.register_error_handler(404, page_not_found)
 app.register_error_handler(403, forbidden)
