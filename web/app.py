@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-# export FLASK_APP=web/controller/main
-# flask run
-# python web/controller/main.py
-
 import os
 import json
 
@@ -81,7 +76,7 @@ def forbidden(e):
 
 @app.errorhandler(500)
 def server_error(e):
-    return render_template('server_error.html'), 403
+    return render_template('500.html'), 500
 
 app.register_error_handler(404, page_not_found)
 app.register_error_handler(403, forbidden)

@@ -14,25 +14,25 @@
                     <div class="card-body">
                         <div class="weather-date-location">
                             <!--<h3>{{weather_today['day_name']}}</h3>-->
-                            <p class="text-gray"> <span class="weather-date">{{weather_today['date']}}</span> <span class="weather-location">{{weather_today['location']}}</span> </p>
+                            <p class="text-gray"> <span class="weather-date">{{date}}</span> <span class="weather-location">{{location}}</span> </p>
                         </div>
                         <div class="weather-data d-flex">
                             <div class="mr-auto">
                                 <!--<h4 class="display-3">{{weather_today['temp']}} <span class="symbol">°</span>C</h4>-->
-                                <p> <b>Sky status:</b> {{weather_today['description']}} </p>
-                                <p> <b>Clouds: </b> {{weather_today['clouds_percent']}} %</p>
+                                <p> <b>Sky status:</b> {{weather_today.description}} </p>
+                                <p> <b>Clouds: </b> {{weather_today.clouds_percent}} %</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="card-body p-0">
                         <div class="d-flex weakly-weather d-flex justify-content-center">
-                            {% for weather_day in weather_days %}
+                            {% for weather_day in weather_next_days %}
                             <div class="weakly-weather-item">
-                                <img src="http://openweathermap.org/img/wn/{{weather_day['weather_icon_code']}}@2x.png"></img>
-                                <p class="mb-0"> <b>{{weather_day['day_name']}}</b> </p>
-                                <p class="mb-0"><span data-feather="cloud"></span> {{weather_day['clouds_percent']}} %</p>
-                                <p class="mb-0"><span data-feather="moon"></span> {{weather_day['moon_phase']}} %</p>
+                                <img src="http://openweathermap.org/img/wn/{{weather_day.icon}}@2x.png"></img>
+                                <p class="mb-0"> <b>{{ weather_day.day_name}}</b> </p>
+                                <p class="mb-0"><span data-feather="cloud"></span> {{weather_day.clouds_percent}} %</p>
+                                <p class="mb-0"><span data-feather="moon"></span> {{weather_day.moon_phase}} %</p>
                             </div>                            
                             {% endfor %}
                         </div>
