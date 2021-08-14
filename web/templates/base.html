@@ -36,9 +36,8 @@
         }
       }
     </style>
-    <!-- Custom styles for this template -->
-    <!-- <link href="./static/dashboard.css" rel="stylesheet"> -->
     <link rel="stylesheet" href="{{url_for("static", filename='css/dashboard.css')}}">
+    <link rel="stylesheet" href="{{url_for("static", filename='css/weather.css')}}">
 
   </head>
 
@@ -76,6 +75,12 @@
                   </a>
                 </li>
                 <li class="nav-item">
+                  <a class="nav-link {{is_active_url('/weather', 'selected')}}" href="/weather">
+                    <span data-feather="cloud"></span>
+                    Weather
+                  </a>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link {{is_active_url('/repository', 'selected')}}" href="/repository">
                     <span data-feather="archive"></span>
                     Repository <span class="sr-only">(current)</span>
@@ -104,6 +109,12 @@
                   <a class="nav-link {{is_active_url('/positives', 'selected')}}" href="/positives">
                     <span data-feather="target"></span>
                     Detected Meteors
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link {{is_active_url('/weather', 'selected')}}" href="/weather">
+                    <span data-feather="cloud"></span>
+                    Weather
                   </a>
                 </li>
                 <li class="nav-item">
@@ -162,18 +173,33 @@
   </body>
   <section>
     <!-- Footer -->
-    <footer class="text-center text-white" style="background-color: #343a40!important;">
+    <footer class="text-center text-white" style="padding-top:1%; background-color:#343a40!important;">
       <!-- Grid container -->
-      <div class="container p-4 pb-0">
-        <!-- Section: CTA -->
-        <!-- Section: CTA -->
+      <div class="d-flex justify-content-center">
+
+        <ul class="list-inline">
+          <li class="list-inline-item">
+            <a style="color: inherit;" target="_blank" href="https://github.com/ainokila"><span data-feather="github"></span> Github</a>
+          </li>
+          <li class="list-inline-item">
+            <a style="color: inherit;" target="_blank" href="https://www.indilib.org/"><span data-feather="hard-drive"></span> Indi</a>
+          </li>
+          <li class="list-inline-item">
+            <a style="color: inherit;" target="_blank" href="https://github.com/ainokila"><span data-feather="git-pull-request"></span> Issues</a>
+          </li>
+        </ul>
+
+        <script>
+          feather.replace()
+        </script>
+
       </div>
       <!-- Grid container -->
 
       <!-- Copyright -->
       <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
         © 2020 Copyright:
-        <a class="text-white" href="https://mdbootstrap.com/">MDBootstrap.com</a>
+        <a class="text-white" href="https://github.com/ainokila/">Ainokila</a>
       </div>
       <!-- Copyright -->
     </footer>

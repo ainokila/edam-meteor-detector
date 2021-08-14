@@ -3,58 +3,60 @@
 
 import os
 
-# ENV configuration
-STATIC_PATH = os.environ['PYTHONPATH'] + '/web/static'
-RAW = STATIC_PATH + '/data/raw/'
-CANDIDATES = STATIC_PATH + '/data/candidates/'
-DISCARDED = STATIC_PATH + '/data/discarded/'
-POSITIVES = STATIC_PATH + '/data/positives/'
+from source.utils.variables import REPOSITORY_IMG_DATA_PATH
 
 
 class ImageRepository(object):
 
-    RAW = RAW
-    CANDIDATES = CANDIDATES
-    DISCARDED = DISCARDED
-    POSITIVES = POSITIVES
+    RAW = REPOSITORY_IMG_DATA_PATH + '/raw/'
+    CANDIDATES = REPOSITORY_IMG_DATA_PATH + '/candidates/'
+    DISCARDED = REPOSITORY_IMG_DATA_PATH + '/discarded/'
+    POSITIVES = REPOSITORY_IMG_DATA_PATH + '/positives/'
+
+    TYPE_MAPPING = {
+        'candidates': CANDIDATES,
+        'positives': POSITIVES,
+        'discarded': DISCARDED,
+        'raw': RAW,
+    }
 
     def __init__(self):
         pass
 
-    def list_files(self, directory, extension=''):
-        """Find the files name in a directory
+    def list_files(self, img_type, extension=''):
+        """Find the files name given an image type
 
         Args:
-            directory (str): Directory name
+            img_type (str): Image type
             extension (str, optional): Extension filter. Defaults to ''.
 
         Returns:
             list: List with the file names
         """
         found_files = []
-        for _, _, files in os.walk(directory):
+        for _, _, files in os.walk(self.TYPE_MAPPING[img_type]):
             for file in files:
                 if file.endswith(extension):
-                    found_files.append(file)
+                    found_files.append(file.split('.')[-2])
         return found_files
 
 
-    def find_file(self, directory, name, extension=''):
-        """Find the the file name in a directory
+    def find_file(self, img_type, name, extension=''):
+        """Find the the file name in a img_type
 
         Args:
-            directory (str): Directory name
+            img_type (str): Image type
             name (str): Filename
             extension (str, optional): Extension filter. Defaults to ''.
 
         Returns:
             list: List with the file names
         """
-        for _, _, files in os.walk(directory):
+        for _, _, files in os.walk(self.TYPE_MAPPING[img_type]):
             for file in files:
                 file_name = file.split('.')[-2]
                 if file.endswith(extension) and name == file_name:
-                    return file
+                    return file_name
         return None
 
     def move_files(self, file_name, source, destination):

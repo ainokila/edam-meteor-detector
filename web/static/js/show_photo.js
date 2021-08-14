@@ -89,7 +89,9 @@ function nextImages(){
 
 function showImage(){
     var sourcePhoto = $(this).attr('src');
-    var endPoint = '/repository/' + sourcePhoto.replace('/static/data/', '').replace('.jpg', '');
+    ///repository/<img_type>/<img_name>'
+    var endPoint = '/repository/' + sourcePhoto.split('/')[2] + '/' + sourcePhoto.split('/')[3];
+    console.log(endPoint);
     $.ajax({
         url: endPoint,
         dataType : 'json',
