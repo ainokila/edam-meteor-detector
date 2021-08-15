@@ -63,3 +63,25 @@ class SearchRepositoryForm(FlaskForm):
     end_date = DateTimeLocalField('End Date', default=datetime.now(), format='%Y-%m-%dT%H:%M')
 
     submit = SubmitField('Search')
+
+
+class ConfigNotificationForm(FlaskForm):
+
+    enabled_notifications = BooleanField('Service Status')
+
+    telegram_api_id = StringField('Telegram ID', render_kw={'readonly': True})
+    telegram_api_hash = StringField('Telegram HASH', render_kw={'readonly': True})
+    telegram_receivers = StringField('Telegram Users', validators=[DataRequired()])
+
+    check_hour = TimeField('Send time', validators=[DataRequired()])
+
+    submit = SubmitField('Search')
+
+    def _to_dict(self):
+        return {
+            'enabled_notifications': bool(self.enabled_notifications.data),
+            'telegram_api_id': self.telegram_api_id.data,
+            'telegram_api_hash': self.telegram_api_hash.data,
+            'telegram_receivers': self.telegram_receivers.data,
+            'check_hour': self.check_hour.data,
+        }

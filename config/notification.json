@@ -1,0 +1,7 @@
+{
+    "check_hour": "08:00",
+    "enabled_notifications": false,
+    "telegram_api_hash": "<telegram_api_hash>",
+    "telegram_api_id": "<telegram_api_id>",
+    "telegram_receivers": "@ainokila"
+}

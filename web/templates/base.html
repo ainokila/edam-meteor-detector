@@ -104,6 +104,12 @@
                     Analyzer
                   </a>
                 </li>
+                <li class="nav-item">
+                  <a class="nav-link {{is_active_url('/notification/settings', 'selected')}}" href="/notification/settings">
+                    <span data-feather="send"></span>
+                    Notifications
+                  </a>
+                </li>
                 {% else -%}
                 <li class="nav-item">
                   <a class="nav-link {{is_active_url('/positives', 'selected')}}" href="/positives">
@@ -142,6 +148,13 @@
                   <a class="nav-link disabled" href="/analyzer/settings">
                     <span data-feather="settings"></span>
                     Analyzer
+                    <span data-feather="lock"></span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link disabled" href="/notification/settings">
+                    <span data-feather="send"></span>
+                    Notifications
                     <span data-feather="lock"></span>
                   </a>
                 </li>
