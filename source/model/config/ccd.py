@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os
-import json
 
-from source.utils.encoder import JSONCustomEncoder
+from source.model.config.base_config import BaseConfig
 
 
-class CCDConfig(object):
+class CCDConfig(BaseConfig):
 
     def __init__(self, data={}):
         """Creates a new CCDConfig object
@@ -14,6 +12,7 @@ class CCDConfig(object):
         Args:
             data (dict, optional): CCDConfig information. Defaults to {}.
         """
+        super(CCDConfig, self).__init__()
         self.device_name = None
         self.exposure_time = None
         self.gain = None
@@ -54,39 +53,4 @@ class CCDConfig(object):
         self.auto_start = data.get('auto_start', False)
         self.auto_config = data.get('auto_config', False)
 
-
-    def __repr__(self):
-        return json.dumps(self.to_dict())
-
-    def __hash__(self):
-        return hash(tuple(self.__dict__.items()))
-
-    def export_to_file(self, path):
-        """ Exports CCD Config to a file
-
-        Args:
-            path (str):  Path where to save the CCD Config
-        """
-        with open(path, 'w') as client_conf_file:
-            client_conf_file.write(json.dumps(
-                self.to_dict(), cls=JSONCustomEncoder, indent=4, sort_keys=True))
-            client_conf_file.close()
-
-
-    @staticmethod
-    def create_from_file(path):
-        """ Creates an CCDConfig object using a config file
-
-        Args:
-            path (str): Path to load the configuration
-
-        Returns:
-            CCDConfig: CCDConfig object with the configuration
-        """
-        client_config = {}
-
-        with open(path) as client_conf_file:
-            client_config = json.load(client_conf_file)
-            client_conf_file.close()
-
-        return CCDConfig(data=client_config)
+CCDConfig._CLASS = CCDConfig

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "form_helper.html" import render_field %}
+{% block title %}Notifications{% endblock %}
+{% block page_name %}Telegram Notifications{% endblock %}
+{% block content %}
+    <!-- Fill it-->
+    <div class="container">
+        <div class="row">
+          <div class="col-sm" >
+            <div class="d-flex justify-content-center" style="margin-bottom: 20px;" >
+                <form action="./settings" method="post" nocandidates style=" width: 350px; border: 2px solid rgb(197, 194, 194);
+                border-radius: 25px; box-shadow: 0 0 20px rgb(228, 222, 222);">
+                    {{ form.hidden_tag() }}
+                    <div style=" margin:20px">
+
+                        <p>      
+                            {{ render_field(form.enabled_notifications, class='form-control') }}
+                        </p>         
+
+                        <p>                
+                            {{ render_field(form.telegram_api_id, class='form-control', placeholder='Telegram API ID') }}
+                        </p>
+
+                        <p>                
+                            {{ render_field(form.telegram_api_hash, class='form-control', placeholder='Telegram API Hash') }}
+                        </p>
+
+                        <p>                
+                            {{ render_field(form.telegram_receivers, class='form-control', placeholder='Telegram Users') }}
+                        </p>
+
+                        <p>                
+                            {{ render_field(form.check_hour, class='form-control', placeholder='Hour HH:SS') }}
+                        </p>
+
+                        <div  class="d-flex justify-content-center">
+                            <button type="submit" class="btn btn-primary">Update Configuration</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

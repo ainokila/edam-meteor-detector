@@ -10,7 +10,7 @@ from source.model.image.fits import ImageFits
 from source.utils.image.formats import _fits_to_jpg
 from source.model.repository import ImageRepository
 from source.analysis.meteor import MeteorDetector
-from source.model.analyzerconfig import AnalyzerConfig
+from source.model.config.analyzer import AnalyzerConfig
 from source.utils.variables import ANALYZER_CONFIG_PATH
 
 class ImageAnalyzer(Process):

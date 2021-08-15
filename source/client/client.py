@@ -15,7 +15,7 @@ from multiprocessing import Process, Pipe
 from source.model.indiclients import CCDClient
 from source.model.image.fits import ImageFits
 from source.model.analyzer import ImageAnalyzer
-from source.model.ccdconfig import CCDConfig
+from source.model.config.ccd import CCDConfig
 from source.utils.variables import CLIENT_CONFIG_PATH, ANALYZER_CONFIG_PATH
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
