@@ -3,7 +3,7 @@
     "auto_start": true,
     "device_name": "QHY CCD QHY5-M-",
     "end_time": "13:00",
-    "exposition_time": 5.0,
+    "exposition_time": 6.0,
     "gain": 1.0,
     "start_time": "21:01"
 }
