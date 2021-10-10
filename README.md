@@ -34,7 +34,7 @@
 
 ## 🦟 Introducción
 
-El proyecto EDAM utiliza [INDI(https://indilib.org/) (Instrument Neutral Distributed Interface) para la gestión de la cámara conectada.
+El proyecto EDAM utiliza [INDI](https://indilib.org/) (Instrument Neutral Distributed Interface) para la gestión de la cámara conectada.
 
 Cuenta con los siguientes componentes:
 1. Cliente INDI.
