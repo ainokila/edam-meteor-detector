@@ -23,54 +23,123 @@
     <img src="docs/images/logo.png" alt="Logo" width="100" height="100">
   </a>
 
-  <h1 align="center">Meteor Detector</h1>
+  <h1 align="center">EDAM - Estación de Detección Automatizada de Meteoros</h1>
 
   <p align="center">
-    Fusce iaculis, ligula vel auctor accumsan, metus urna posuere turpis, at auctor erat tortor nec mi. Etiam sodales posuere justo, quis lacinia felis lacinia id. Duis ut tortor sed magna sodales viverra. Duis pulvinar efficitur turpis eget elementum. Morbi erat magna, aliquam vitae nisl at, molestie porttitor magna. Sed sed turpis urna. Duis pharetra non leo non commodo. Vestibulum imperdiet, quam a consequat consequat, ipsum ipsum fringilla justo. 
+    EDAM es un sistema de monitorización y análisis de imagenes tomadas mediantes cámaras con el fin de detectar posibles meteoros.
   </p>
 </p>
 
 <br>
 
-## 🐝 About The Project
+## 🦟 Introducción
 
-<p align="justify">
- Aliquam eget rhoncus sapien. Vivamus pretium elit ac libero ultricies ultricies. Cras nunc tortor, eleifend vel bibendum sit amet, consectetur at justo. Integer aliquam justo id mauris hendrerit dictum. Nam ac sem at sem laoreet vulputate at a quam. Mauris commodo, metus eu porttitor mollis, lectus quam pellentesque tortor, nec pharetra nisi turpis a diam.
-</p>
-<p align="justify">
-Donec porta nulla eget nunc consequat scelerisque. Aliquam eget rhoncus sapien. Vivamus pretium elit ac libero ultricies ultricies. Cras nunc tortor, eleifend vel bibendum sit amet, consectetur at justo. Integer aliquam justo id mauris hendrerit dictum. Nam ac sem at sem laoreet vulputate at a quam. Mauris commodo, metus eu porttitor mollis, lectus quam pellentesque tortor, nec pharetra nisi turpis a diam.
-</p>
+El proyecto EDAM utiliza [INDI(https://indilib.org/) (Instrument Neutral Distributed Interface) para la gestión de la cámara conectada.
 
-<p align="center">
-    <img src="docs/images/logo.png" alt="Gif" width="700">
-</p>
+Cuenta con los siguientes componentes:
+1. Cliente INDI.
+2. Clasificador de Imágenes.
+3. Controlador de Notificaciones.
+4. Servidor web.
 
-## 🦟 Prerequisites
-
+## 🦟 Requisitos
 <ul>
-  <li><a href="https://www.docker.com/">curl</a></li>
+  <li><a href="https://curl.se/download.html">curl</a></li>
+  <li><a href="https://www.python.org/downloads/">Python 3.8</a></li>
 </ul>
 
-## 🦗 Installation
+## 🦗 Instalación
 
-1. sudo ./setup.sh
-2. ...
-3. ...
-4. ...
+La instalación de la estación esta practicamente automatizada a través del script setup.sh, este script instalará todas las dependencias de INDI y los controladores necesarios para trabajar con él.
 
-## 🦋 Usage
+Instalación de requisitos de INDI y los controladores:
+  ```
+  sudo ./setup.sh
+  ```
 
-1. Go to [localhost:5000](http://localhost:5000) 
-2. ...
-3. ...
-4. ...
+Instalación de requisitos para python:
+  ```
+  pip install -r requirements 
+  ```
 
-## 🐍 Disclaimer
+Cuando estén correctamente instalados los requisitos anteriores, podemos proceder a la ejecución del cliente y del servidor web.
+
+## ¿Como ejecutarlo?
+
+### ⭐️ Ejecución del cliente de INDI
+
+Todas las dependencias de INDI fueron instaladas a través de la ejecución del script setup, por lo que ahora ejecutaremos el cliente de INDI, que será el encargado
+de mantener las comunicaciones con nuestra camara.
+
+  ```
+  indiserver -v <indi_client_name>
+  ```
+
+Por ejemplo, para una camara QHY5 debemos utilizar:
+
+  ```
+  indiserver -v indi_qhy_ccd
+  ```
+
+### 💫 Ejecución del Servidor Web
+
+Para ejecutar el servidor web debemos instalar un WSGI, como Gunicorn o Uvicorn. En el siguiente ejemplo se toma de WSGI a Gunicorn.
+
+1. Instalación de Gunicorn:
+
+  ```
+  pip install gunicorn
+  ```
+
+2. Ejecutar el servidor web a través de Gunicorn:
+  ```
+  gunicorn -w 4 --bind 0.0.0.0:8080 web/app:app
+  ```
+
+3. El servidor estará activo en la url [http://localhost:8080](http://localhost:8080)
+
+### 📨 Configuración de envio de mensajes a través de Telegram
+
+Para poder enviar mensajes a través de telegram debemos crear una nueva aplicación en Telegram siguiendo los siguientes [pasos.](https://core.telegram.org/api/obtaining_api_id-)
+
+Una vez obtenida el api hash y api id, debemos añadirla en el siguiente fichero: config/notification.json
+
+  ```
+  {
+    "check_hour": "08:05",
+    "enabled_notifications": true,
+    "telegram_api_hash": "<hash>",
+    "telegram_api_id": "<id>",
+    "telegram_receivers": "@usuariotelegram"
+  }
+  ```
+
+Cuando el fichero se encuentre guardado, ya podrémos iniciar el modulo de notificaciones a través del siguiente comando:
+  ```
+  python source/notification/telegram_notifications.py
+  ```
+
+### 🌡 Configuración de la sección del tiempo.
+Si se quiere habilitar la sección del tiempo donde se pueden consultar las predicciones de nubosidades, lluvias y fases lunares, debemos crear un API key en [openweathermap.org](openweathermap.org) y configurar el fichero de configuración config/weather.json con el API Key.
+
+  ```
+  {
+    "latitude": "37.18817",
+    "longitude": "-3.60667",
+    "location": "Granada, ES",
+    "api_key": "<api_key>",
+    "units": "metric",
+    "language": "en"
+  }
+  ```
+
+## 🐍 ¿Como contribuir al proyecto?
 
 <p align="justify">
-Fusce iaculis, ligula vel auctor accumsan, metus urna posuere turpis, at auctor erat tortor nec mi. Etiam sodales posuere justo, quis lacinia felis lacinia id. Duis ut tortor sed magna sodales viverra. Duis pulvinar efficitur turpis eget elementum. Morbi erat magna, aliquam vitae nisl at, molestie porttitor magna. Sed sed turpis urna. Duis pharetra non leo non commodo. Vestibulum imperdiet, quam a consequat consequat.
+  Para poder contribuir al proyecto solo es necesario crear un issue en esta página de github explicando el posible issue o mejora a incluir en el proyecto.
+  Si se desea introducir cualquier cambio de código o documentación se puede realizar creando un pull-request y utilizando el nombrado de ramas a través de git-flow.
 </p>
 
-## 🐛 License
+## 🐛 Licencia
 
-Add the license
+Este proyecto está disponible mediante la licencia GPL-3.0 License.
