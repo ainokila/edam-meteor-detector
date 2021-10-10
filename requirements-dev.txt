@@ -8,3 +8,4 @@ pytest==6.1.0
 Flask==2.0.1
 Flask-WTF==0.14.3
 scikit-image==0.18.2
+Telethon==1.23.0

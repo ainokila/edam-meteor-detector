@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from source.model.ccdconfig import CCDConfig
+from source.model.config.ccd import CCDConfig
 
 
 class TestCCDConfigModel:
@@ -44,4 +44,15 @@ class TestCCDConfigModel:
         assert config.auto_config == True
 
     def test_ccdconfig_to_dict(self):
-        pass
+        
+        config_info = {
+            'device_name': 'test',
+            'exposition_time': 1,
+            'gain': 1,
+            'start_time': 'hh:ss',
+            'end_time': 'hh:ss',
+            'auto_start': True,
+            'auto_config': True,
+        }
+        config = CCDConfig(data=config_info)
+        assert config.to_dict()

@@ -17,7 +17,7 @@ class WeatherDay(object):
     def __init__(self, from_dict={}):
 
         self.moon_phase = int(from_dict.get('moon_phase', 0) * 100)
-        self.clouds_percent = from_dict.get('clouds', 0)
+        self.clouds_percent = from_dict.get('clouds', 900)
         self.description = from_dict.get('weather', [])[0]['description']
         self.icon = from_dict.get('weather', [])[0]['icon']
         self.day_name = datetime.fromtimestamp(from_dict.get('dt', 0)).strftime("%A")
@@ -64,6 +64,8 @@ class WeatherAPI(object):
 
         # Fill Current Day
         weather_days.append(WeatherDay(weather_data_dict['current']))
+        print(weather_data_dict['current'])
+        print(WeatherDay(weather_data_dict['current']).clouds_percent)
 
         # Fill Nex N-1 Days
         for day_position in range(0, num_of_days - 1):

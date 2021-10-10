@@ -11,6 +11,7 @@ from flask import render_template, request, send_from_directory, url_for
 from web.service.views import LastPositiveView, ValidateView, AnalyzerSettingsView
 from web.service.views import CCDSettingsView, LoginView, AnalyzeView, LogOutView, WeatherView
 from web.service.views import RepositoryTypeView, RepositoryTypeIndividualView, RepositoryView
+from web.service.views import NotificationSettingsView
 from source.utils.variables import REPOSITORY_IMG_DATA_PATH, WEB_CONFIG_PATH
 
 
@@ -59,6 +60,7 @@ app.add_url_rule('/repository/<img_type>/<img_name>', view_func=RepositoryTypeIn
 
 app.add_url_rule('/ccd/settings', view_func=CCDSettingsView.as_view('ccd_settings_view'))
 app.add_url_rule('/analyzer/settings', view_func=AnalyzerSettingsView.as_view('analyzer_settings_view'))
+app.add_url_rule('/notification/settings', view_func=NotificationSettingsView().as_view('notification_settings_view'))
 
 app.add_url_rule('/login', view_func=LoginView.as_view('login_view'))
 app.add_url_rule('/logout', view_func=LogOutView.as_view('logout_view'))

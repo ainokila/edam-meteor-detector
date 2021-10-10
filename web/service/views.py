@@ -14,12 +14,13 @@ from flask import render_template, session, redirect, url_for, redirect, jsonify
 from source.db.userdb import UserDB
 from source.model.repository import ImageRepository
 from source.model.image.fits import ImageFits
-from source.utils.variables import CLIENT_CONFIG_PATH, ANALYZER_CONFIG_PATH, WEATHER_CONFIG_PATH
-from source.model.ccdconfig import CCDConfig
-from source.model.analyzerconfig import AnalyzerConfig
+from source.utils.variables import CLIENT_CONFIG_PATH, ANALYZER_CONFIG_PATH, WEATHER_CONFIG_PATH, NOTIFICATION_CONFIG_PATH
+from source.model.config.ccd import CCDConfig
+from source.model.config.analyzer import AnalyzerConfig
+from source.model.config.notification import NotificationConfig
 from source.model.weather import WeatherAPI
 
-from web.service.forms import ConfigCCDForm, ConfigAnalyzerForm, LoginForm, SearchRepositoryForm
+from web.service.forms import ConfigCCDForm, ConfigAnalyzerForm, LoginForm, SearchRepositoryForm, ConfigNotificationForm
 
 
 image_repository = ImageRepository()
@@ -262,6 +263,35 @@ class CCDSettingsView(View):
             context = { 'user': user, 'form': form}
             return self.render_template(context)
 
+class NotificationSettingsView(View):
+
+    methods = ['GET', 'POST']
+
+    def get_template_name(self):
+        return 'settings_notification.html'
+
+    def render_template(self, context):
+        return render_template(self.get_template_name(), **context)
+
+    @login_required
+    def dispatch_request(self):
+
+        user = session_user()
+        form = ConfigNotificationForm()
+
+        if request.method == 'POST':
+            context = { 'user': user, 'form': form}
+
+            if form.validate_on_submit():
+                NotificationConfig(form._to_dict()).export_to_file(NOTIFICATION_CONFIG_PATH)
+                
+            return self.render_template(context)
+
+        else:
+            notificiation_conf = NotificationConfig.create_from_file(NOTIFICATION_CONFIG_PATH)
+            form = ConfigNotificationForm(formdata=MultiDict(notificiation_conf.to_dict()))
+            context = { 'user': user, 'form': form}
+            return self.render_template(context)
 
 class AnalyzerSettingsView(View):
 
