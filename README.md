@@ -1,16 +1,16 @@
 
 <p align="center">
-  <a href="https://github.com/ainokila/tfg/network/members">
-    <img alt="GitHub forks" src="https://img.shields.io/github/forks/ainokila/tfg?style=for-the-badge">
+  <a href="https://github.com/ainokila/edam-meteor-detector/network/members">
+    <img alt="GitHub forks" src="https://img.shields.io/github/forks/ainokila/edam-meteor-detector?style=for-the-badge">
   </a>
-  <a href="https://github.com/ainokila/tfg/stargazers">
-    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/ainokila/tfg?style=for-the-badge">
+  <a href="https://github.com/ainokila/edam-meteor-detector/stargazers">
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/ainokila/edam-meteor-detector?style=for-the-badge">
   </a>
-  <a href="https://github.com/ainokila/tfg/issues">
-    <img alt="GitHub issues" src="https://img.shields.io/github/issues/ainokila/tfg?style=for-the-badge">
+  <a href="https://github.com/ainokila/edam-meteor-detector/issues">
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/ainokila/edam-meteor-detector?style=for-the-badge">
   </a>
-  <a href="https://github.com/ainokila/tfg/blob/master/LICENSE.txt">
-    <img alt="GitHub" src="https://img.shields.io/github/license/ainokila/tfg?style=for-the-badge">
+  <a href="https://github.com/ainokila/edam-meteor-detector/blob/master/LICENSE.txt">
+    <img alt="GitHub" src="https://img.shields.io/github/license/ainokila/edam-meteor-detector?style=for-the-badge">
   </a>
   <a href="https://es.linkedin.com/in/cristianvelezruiz">
     <img alt="Linkedin" src="https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555">
